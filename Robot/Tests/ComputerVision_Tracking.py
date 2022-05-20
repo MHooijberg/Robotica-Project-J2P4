@@ -1,3 +1,7 @@
+import Robot.Types.ObjectPosition as ObjectPosition
+import Robot.ComputerVision.Tracker as ComputerVision
+
+
 def ComputerVisionTrackingTest():
     #cvision = ComputerVision()
     last_direction = ObjectPosition.middle

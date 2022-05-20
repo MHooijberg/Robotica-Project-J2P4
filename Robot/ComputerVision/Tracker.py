@@ -1,6 +1,8 @@
 import cv2 as cv
 from cv2 import WINDOW_NORMAL
 import numpy as np
+import Robot.Types.TrackMode as TrackMode
+import Robot.Types.ObjectPosition as ObjectPosition
 
 
 class ComputerVision:
