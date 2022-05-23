@@ -5,7 +5,7 @@ import Robot.Types.TrackMode as TrackMode
 import Robot.Types.ObjectPosition as ObjectPosition
 
 
-class ComputerVision:
+class Tracker:
     def __init__(self):
         self.cap = cv.VideoCapture(0)
 

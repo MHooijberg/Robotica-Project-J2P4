@@ -1,12 +1,12 @@
 import Robot.Types.ObjectPosition as ObjectPosition
-import Robot.ComputerVision.Tracker as ComputerVision
+import Robot.ComputerVision.Tracker as Tracker
 
 
 def ComputerVisionTrackingTest():
     #cvision = ComputerVision()
     last_direction = ObjectPosition.middle
     while True:
-        current_direction = ComputerVision().GetPositionTrackingObject()
+        current_direction = Tracker().GetPositionTrackingObject()
         if (current_direction != last_direction):
             match current_direction:
                 case ObjectPosition.left:
