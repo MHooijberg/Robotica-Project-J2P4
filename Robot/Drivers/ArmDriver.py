@@ -2,10 +2,9 @@ from ..IOComponent.Ax12a import Ax12
 
 
 class ArmDriver:
-    self.servoLibrary = Ax12
-    self.servoIds = [int]
-
     def __init__(self):
+        self.servoLibrary = Ax12
+        self.servoIds = [int]
         self.servos.append(69)
         self.servos.append(70)
         self.servos.append(71)
