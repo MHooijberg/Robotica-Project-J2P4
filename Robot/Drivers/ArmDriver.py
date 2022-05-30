@@ -1,6 +1,9 @@
+from ..IOComponent
 
 
 class ArmDriver:
+    self.servos = [AX-12A]
+
     def __init__(self):
         pass
 
