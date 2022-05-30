@@ -4,6 +4,9 @@ from time import sleep
 
 # The driver for the DC Motors
 
+# TODO: kijk of alle setups en outputs enz nodig zijn want dit is nog testcode.
+# TODO: Callibreer code met de linker en rechter outputs.
+
 
 class Mdd3aDriver:
     pins = array.array(int)
@@ -36,16 +39,10 @@ class Mdd3aDriver:
         self.pwmPin2a.start(0)
         self.pwmPin2b.start(0)
 
-    def Forward(self, speed):
-        self.pwmPin1a.start(speed)
-        GPIO.output(self.pins[1], GPIO.LOW)
-        self.pwmPin2a.start(speed)
-        GPIO.output(self.pins[3], GPIO.LOW)
-
-    def Backward(self, speed):
-        self.pwmPin1b.start(speed)
+    def Backward(self, speedLeft, speedRight):
+        self.pwmPin1b.start(speedLeft)
         GPIO.output(self.pins[0], GPIO.LOW)
-        self.pwmPin2b.start(speed)
+        self.pwmPin2b.start(speedRight)
         GPIO.output(self.pins[2], GPIO.LOW)
 
     def Brake(self):
@@ -53,3 +50,38 @@ class Mdd3aDriver:
         GPIO.output(self.pins[1], GPIO.LOW)
         GPIO.output(self.pins[2], GPIO.LOW)
         GPIO.output(self.pins[3], GPIO.LOW)
+
+    def Forward(self, speedLeft, speedRight):
+        self.pwmPin1a.start(speedLeft)
+        GPIO.output(self.pins[1], GPIO.LOW)
+        self.pwmPin2a.start(speedRight)
+        GPIO.output(self.pins[3], GPIO.LOW)
+
+    # Rotate around the midpoint with both motors, to the right.
+    def RotateLeft(self, speed):
+        self.pwmPin1a.start(speed)
+        GPIO.output(self.pins[1], GPIO.LOW)
+        self.pwmPin2b.start(speed)
+        GPIO.output(self.pins[2], GPIO.LOW)
+
+    # Rotate around the midpoint with both motors, to the right.
+
+    def RotateRight(self, speed):
+        self.pwmPin1b.start(speed)
+        GPIO.output(self.pins[0], GPIO.LOW)
+        self.pwmPin2a.start(speed)
+        GPIO.output(self.pins[3], GPIO.LOW)
+
+    # Only the left wheel spins.
+    def TurnLeft(self, speed):
+        self.pwmPin1a.start(speed)
+        GPIO.output(self.pins[1], GPIO.LOW)
+        GPIO.output(self.pins[2], GPIO.LOW)
+        GPIO.output(self.pins[3], GPIO.LOW)
+
+    # Only the right wheel spins.
+    def TurnRight(self, speed):
+        self.pwmPin2a.start(speed)
+        GPIO.output(self.pins[3], GPIO.LOW)
+        GPIO.output(self.pins[0], GPIO.LOW)
+        GPIO.output(self.pins[1], GPIO.LOW)
