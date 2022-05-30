@@ -1,11 +1,15 @@
-from ..IOComponent
+from ..IOComponent.Ax12a import Ax12
 
 
 class ArmDriver:
-    self.servos = [AX-12A]
+    self.servoLibrary = Ax12
+    self.servoIds = [int]
 
     def __init__(self):
-        pass
+        self.servos.append(69)
+        self.servos.append(70)
+        self.servos.append(71)
+        self.servos.append(72)
 
     def MoveTo(self, x, y, z):
         pass
@@ -13,5 +17,5 @@ class ArmDriver:
     def MoveTo(self, armPosition):
         pass
 
-    def DanceController(self, DanceType):
+    def Dance(self, DanceType):
         pass
