@@ -1,4 +1,5 @@
 from ..IOComponent.Ax12a import Ax12
+from ..Types.ArmPosition import ArmPosition
 
 
 class ArmDriver:
@@ -19,8 +20,17 @@ class ArmDriver:
         self.servoLibrary.move(self.servoIds[1], lowerAngle)
         self.servoLibrary.move(self.servoIds[2], upperAngle)
 
+    # TODO: add security for when armPosition is null.
     def MoveTo(self, armPosition):
-        pass
+        match armPosition:
+            case ArmPosition.Rest:
+                self.servoLibrary.move(self.servoIds[0], 0)
+                self.servoLibrary.move(self.servoIds[1], 0)
+                self.servoLibrary.move(self.servoIds[2], 0)
+            case ArmPosition.Weigh:
+                self.servoLibrary.move(self.servoIds[0], 0)
+                self.servoLibrary.move(self.servoIds[1], 0)
+                self.servoLibrary.move(self.servoIds[2], 0)
 
     def Dance(self, DanceType):
         pass
