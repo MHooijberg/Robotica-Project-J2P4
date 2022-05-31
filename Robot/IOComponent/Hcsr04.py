@@ -3,12 +3,14 @@ import time
 
 class Hcsr04:
 
-    # Initialisation method, this is used to setup global variables.
-    def __init__(self):
+    # initialisation method, this is used to setup global variables.
+    def __init__(self, pinA, pinB):
         GPIO.setmode(GPIO.BCM)
-        self.GPIO_TRIGGER = 18
-        self.GPIO_ECHO = 24
-        #set GPIO direction (IN / OUT)
+        # recommended pinA = 18
+        self.GPIO_TRIGGER = pinA
+        # recommended pinA = 24
+        self.GPIO_ECHO = pinB
+        # set GPIO direction (IN / OUT)
         GPIO.setup(self.GPIO_TRIGGER, GPIO.OUT)
         GPIO.setup(self.GPIO_ECHO, GPIO.IN)
 
