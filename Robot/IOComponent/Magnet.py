@@ -1,13 +1,13 @@
 import RPi.GPIO as GPIO
 class Magnet:
 
-    def __init__(self):
-        Mag_Pin = 20
+    def __init__(self, pin):
+        # 'pin' = magnetpin
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(Mag_Pin, GPIO.OUT)
+        GPIO.setup(pin, GPIO.OUT)
     
     def turnON(self):
-        GPIO.output(self.Mag_Pin, GPIO.HIGH)
+        GPIO.output(self.pin, GPIO.HIGH)
     
     def turnOFF(self):
-        GPIO.output(self.Mag_Pin, GPIO.LOW)
+        GPIO.output(self.pin, GPIO.LOW)
