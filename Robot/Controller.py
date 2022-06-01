@@ -29,6 +29,12 @@ from .Types import *
 
 class Controller:
     # ===========================
+    # -------- Settings ---------
+    # ===========================
+    ShouldTurnnOff = False
+
+
+    # ===========================
     # ---- Pin configuration ----
     # ===========================
     M1A_PIN = 12
@@ -36,14 +42,23 @@ class Controller:
     M2A_PIN = 13
     M2B_PIN = 19
 
+
+
     # TODO: Make all IOComponents configureable with pins
     ObjectTracker = Tracker()
     Arm = ArmDriver()
     Screen = Screen()
     MotorDriver = Mdd3aDriver(12, 18, 13, 19)
+    Bluetooth = BluetoothSocket()
 
     def __init__(self):
         pass
 
-    def Update():
-        pass
+    # Update Loop Cycle:
+    #   1. Retrieve Settings from remote.
+    #   2. Change State based on the remote settings.
+    #   3. Start / Keep doing action if State Changed.
+    #   4. Repeat.
+    def Update_Loop(self):
+        while self.ShouldTurnnOff is False:
+            BluetoothSocket.ReceiveData
