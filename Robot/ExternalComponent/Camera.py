@@ -17,6 +17,7 @@ class Camera:
         print("Start of StreamLoop_Async.")
         while True:
             _, frame = Camera.cap.read()
+            Camera.CurrentFrame = frame
             if (len(Camera.frameList) < 72):
                 print("Entered if statement.")
                 Camera.frameList.append(frame)

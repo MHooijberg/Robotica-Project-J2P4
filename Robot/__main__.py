@@ -8,7 +8,8 @@ async def function_2():
     while True:
         await asyncio.sleep(0.01)
         if (len(Camera.frameList) == 72):
-            frame = Camera.GetFrame(71)
+            #frame = Camera.GetFrame(71)
+            frame = Camera.CurrentFrame
             print(type(frame))
             cv.imshow('ffkes een tessie', frame)
         print("\n HELLO WORLD \n")
