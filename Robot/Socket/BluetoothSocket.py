@@ -1,11 +1,20 @@
 import asyncio
 from bleak import BleakClient
-
-address = "78:E3:6D:12:1B:C6"
-MODEL_NBR_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8"
     
 class RemoteSocket:
+    address = "78:E3:6D:12:1B:C6"
+    MODEL_NBR_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+
+    def __init__(self):
+        pass
     
+    async def ReceiveData(self):
+        async with BleakClient(self.address) as client:
+            raw_data = await client.read_gatt_char(self.MODEL_NBR_UUID)
+            data_array = format("".join(map(chr, raw_data))).split(",")
+            print("Data received over bluetooth: {0}".data_array)
+            return data_array
+        
     # QUICK SCAN FOR DEVICES
     #
     # import asyncio
@@ -18,13 +27,4 @@ class RemoteSocket:
     # 
     # asyncio.run(main())
 
-    async def main(address):
-        async with BleakClient(address) as client:
-            model_number = await client.read_gatt_char(MODEL_NBR_UUID)
-            print("Model Number: {0}".format("".join(map(chr, model_number))))
-            return model_number
-
-    asyncio.run(main(address))
     
-    def __init__(self):
-        pass
