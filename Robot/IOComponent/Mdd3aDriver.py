@@ -6,7 +6,7 @@ from time import sleep
 
 # TODO: kijk of alle setups en outputs enz nodig zijn want dit is nog testcode.
 # TODO: Callibreer code met de linker en rechter outputs.
-
+# TODO: Test how fast it goes if you go forward with a speed of 0%
 
 class Mdd3aDriver:
     pins = array.array(int)

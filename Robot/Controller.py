@@ -1,6 +1,11 @@
+import asyncio
+from msilib.schema import Control
+
+#TODO: Fix import issues
 from .ComputerVision import Tracker
 from .Drivers import ArmDriver
 #from .ExternalComponent import Camera
+from .ExternalComponent import Remote
 from .ExternalComponent import Screen
 from .IOComponent import Hcsr04
 from .IOComponent import Magnet
@@ -8,6 +13,7 @@ from .IOComponent import Mdd3aDriver
 from .Socket import BluetoothSocket
 # TODO: Don't import all form a folder, this is bad practice.
 from .Types import *
+from Types.SteeringMode import SteeringMode
 
 # ================
 # ---- Notes: ----
@@ -26,30 +32,58 @@ from .Types import *
 #
 # #
 
-
+# TODO: I'd like to mention that self and Contoller.variable are used interchangebly.
+#       We need to do research on if this might be a bad practise.
 class Controller:
-    # ===========================
-    # -------- Settings ---------
-    # ===========================
+    # ===============================
+    # ---------- Settings -----------
+    # ===============================
     ShouldTurnnOff = False
 
 
-    # ===========================
-    # ---- Pin configuration ----
-    # ===========================
+    # ===============================
+    # ------ Pin configuration ------
+    # ===============================
     M1A_PIN = 12
     M1B_PIN = 18
     M2A_PIN = 13
     M2B_PIN = 19
+    #MAGNET_PIN = 
 
+    # ===============================
+    # ---- Remote  configuration ----
+    # ===============================
+    CENTER_X = 2047
+    CENTER_Y = 2047
+    RANGE = 2047
+    INNER_DEADZONE = 9.75
+    OUTER_DEADZONE = 100
+
+    # ===============================
+    # ----- Servo configuration -----
+    # ===============================
+    BASE_SERVO_ID = 69
+    LOWER_ARM_SERVO_ID = 70
+    UPPER_ARM_SERVO_ID = 71
+    HEAD_SERVO_ID = 72
+    
+    # ===============================
+    # ---- Driving configuration ----
+    # ===============================
+    # TODO: Implement setting to set steering at max value, (turning 1 wheel or rotating around axis)
+    # TODO: Implement a setting to set from when it needs to turn in the special way.
+    # TODO: Implement safety for max speed?
+    STEERING_MODE = SteeringMode.static
 
 
     # TODO: Make all IOComponents configureable with pins
+    # TODO: sort by the order of imports :) i like neat code.
     ObjectTracker = Tracker()
     Arm = ArmDriver()
+    Remote = Remote(CENTER_X, CENTER_Y, RANGE, INNER_DEADZONE, OUTER_DEADZONE)
     Screen = Screen()
-    MotorDriver = Mdd3aDriver(12, 18, 13, 19)
-    Bluetooth = BluetoothSocket()
+    #Magnet = Magnet(MAGNET_PIN)
+    MotorDriver = Mdd3aDriver(M1A_PIN, M1B_PIN, M2A_PIN, M2B_PIN)
 
     def __init__(self):
         pass
@@ -59,6 +93,55 @@ class Controller:
     #   2. Change State based on the remote settings.
     #   3. Start / Keep doing action if State Changed.
     #   4. Repeat.
-    def Update_Loop(self):
-        while self.ShouldTurnnOff is False:
-            BluetoothSocket.ReceiveData
+    # TODO: Discuss with group about being able to controll the arm while driving.
+
+    #TODO: States should be included, a state for each action like current magnet action etc.
+    #      Will save some resources because only when a state is changed something will happen.
+    @staticmethod
+    def Update_Loop():
+        while Controller.ShouldTurnnOff is False:
+            command_array = asyncio.run(Controller.Bluetooth.ReceiveData())
+
+            match command_array[4]:
+                case "Drive":
+                    if (command_array[5] == "ON"):
+                        joystickA = Controller.Remote.JoystickToPercentage(command_array[0], command_array[2])
+                        print("Joystick output: x=" + str(joystickA[0]) + " y=" + str(joystickA[1]))
+                        # TODO: Joystick B Is not needed at the moment.
+                        #joystickB = Controller.Remote.JoystickToPercentage(command_array[1], command_array[3])
+                        Controller.Drive(joystickA)
+                    elif (command_array[6] == "ON"):
+                        pass
+                case "Robot Arm":
+                    if (command_array[5] == "ON"):
+                        Controller.Magnet.turnON()
+                    else:
+                        Controller.Magnet.turnOff()
+                    # TODO: command_array[6] is used for the gripper which we do not have.    
+                case "Dance":
+                    pass
+
+    # TODO: Find a better position for this code.
+    # TODO: I need to test the output of the controller to see if x can be 100 without y being 100
+    def Drive(self, direction):
+        match Controller.STEERING_MODE:
+            case SteeringMode.static:
+                if direction[0] > 0 or direction[1] > 0:
+                    strengthX = abs(direction[0])
+                    strengthY = abs(direction[1])
+                    if  strengthY> strengthX:
+                        if direction[1] > 0:
+                            self.MotorDriver.Forward(strengthY,strengthY)
+                        else:
+                            self.MotorDriver.Backward(strengthY,strengthY)
+                    else:
+                        if direction[0] > 0:
+                            self.MotorDriver.Forward(strengthX,strengthX)
+                        else:
+                            self.MotorDriver.Backward(strengthX,strengthX)
+
+            case SteeringMode.dynamic:
+                pass
+            case SteeringMode.smooth:
+                pass
+

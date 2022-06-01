@@ -14,7 +14,11 @@ class RemoteSocket:
             data_array = format("".join(map(chr, raw_data))).split(",")
             print("Data received over bluetooth: {0}".data_array)
             return data_array
-        
+    
+    # TODO: Bespreken of dit niet beter een RemoteController Class kan zijn omdat het eigenlijk de
+    #       verbinding is met de afstandsbediening, dan kunnen we hier de data conversie ook in zetten.
+    #       of anders een math class om speciale functies op zich te nemen.
+
     # QUICK SCAN FOR DEVICES
     #
     # import asyncio

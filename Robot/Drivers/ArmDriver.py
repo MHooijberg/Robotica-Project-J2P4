@@ -1,16 +1,19 @@
 from ..IOComponent.Ax12a import Ax12
 from ..Types.ArmPosition import ArmPosition
 
+#TODO: Implement head, and maybe it should be positioned seperately from the arm.
+# TODO: maybe a head stabilisation code, where the head of the robot is kept stable,
+#       based on the position of the other servo's
 
 class ArmDriver:
     servoLibrary = Ax12
     servoIds = [int]
 
-    def __init__(self):
-        self.servos.append(69)
-        self.servos.append(70)
-        self.servos.append(71)
-        # self.servos.append(72)
+    def __init__(self, baseId, lowerId, upperId, headId):
+        self.servos.append(baseId)
+        self.servos.append(lowerId)
+        self.servos.append(upperId)
+        self.servos.append(headId)
 
     def MoveTo(self, x, y, z):
         pass
