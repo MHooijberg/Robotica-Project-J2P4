@@ -45,6 +45,9 @@ class Mdd3aDriver:
         self.pwmPin1b.ChangeDutyCycle(0)
         self.pwmPin2a.ChangeDutyCycle(0)
         self.pwmPin2b.ChangeDutyCycle(0)
+    
+    def Dance(self, DanceType):
+        pass
 
     def Forward(self, speedLeft, speedRight):
         self.pwmPin1a.start(speedLeft)
