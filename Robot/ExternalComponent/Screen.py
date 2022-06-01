@@ -31,9 +31,3 @@ class Screen:
                 self.__SendToDisplay("page neutral")
             case EmotionState.Tired:
                 self.__SendToDisplay("page tired")
-
-    # TODO Volg deze guide:https://tutorials-raspberrypi.com/digital-raspberry-pi-scale-weight-sensor-hx711/
-    # en calibreer de gewichtssensor en importeer de library.
-    def DisplayText(self):
-        val = max(0, int(hx.get_weight(5)))
-        self.__SendToDisplay(val)
