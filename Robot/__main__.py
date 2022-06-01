@@ -1,18 +1,21 @@
 import asyncio
-from ExternalComponent.Camera import Camera
 import cv2 as cv
+from ExternalComponent.Camera import Camera
+from ComputerVision.Tracker import Tracker
 
+tracker = Tracker()
 
 async def function_2():
     print("Start of function_2.")
     while True:
         await asyncio.sleep(0.01)
+        print()
         if (len(Camera.frameList) == 72):
-            #frame = Camera.GetFrame(71)
-            frame = Camera.CurrentFrame
+            frame = Camera.GetFrame(71)
             print(type(frame))
-            cv.imshow('ffkes een tessie', frame)
-        print("\n HELLO WORLD \n")
+            print("Getting Object Position:")
+            tracker.GetPositionTrackingObject(frame)
+        #print("\n HELLO WORLD \n")
 
 loop = asyncio.get_event_loop()
 asyncio.ensure_future(Camera.StreamLoop_Async())

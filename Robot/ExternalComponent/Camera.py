@@ -6,6 +6,7 @@ import numpy as np
 class Camera:
     frameList = []
     loop = asyncio.get_event_loop()
+    cv.VideoCapture(0).release()
     cap = cv.VideoCapture(0)
 
     @staticmethod
@@ -15,18 +16,19 @@ class Camera:
     @staticmethod
     async def StreamLoop_Async():
         print("Start of StreamLoop_Async.")
+        
         while True:
             _, frame = Camera.cap.read()
-            Camera.CurrentFrame = frame
             if (len(Camera.frameList) < 72):
-                print("Entered if statement.")
+                #print("Entered if statement.")
                 Camera.frameList.append(frame)
             else:
-                print("Entered else statement.")
+                #print("Entered else statement.")
                 for x in range(1, 72):
                     Camera.frameList.insert(x - 1, Camera.frameList[x])
                 Camera.frameList[71] = frame
             await asyncio.sleep(0.01)
+        
 
     @staticmethod
     def StartStream():
@@ -35,4 +37,4 @@ class Camera:
 
     @staticmethod
     def StopStream():
-        Camera.loop.stop()
+        Camera.cap.release()
