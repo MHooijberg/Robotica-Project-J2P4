@@ -18,10 +18,12 @@ class ArmDriver:
     def MoveTo(self, x, y, z):
         pass
 
-    def MoveTo(self, baseAngle, lowerAngle, upperAngle):
+    def MoveTo(self, baseAngle, lowerAngle, upperAngle, headAngle):
         self.servoLibrary.move(self.servoIds[0], baseAngle)
         self.servoLibrary.move(self.servoIds[1], lowerAngle)
         self.servoLibrary.move(self.servoIds[2], upperAngle)
+        self.servoLibrary.move(self.servoIds[3], headAngle)
+
 
     # TODO: add security for when armPosition is null.
     def MoveTo(self, armPosition):
@@ -30,10 +32,31 @@ class ArmDriver:
                 self.servoLibrary.move(self.servoIds[0], 0)
                 self.servoLibrary.move(self.servoIds[1], 0)
                 self.servoLibrary.move(self.servoIds[2], 0)
+                self.servoLibrary.move(self.servoIds[3], 0)
+
             case ArmPosition.Weigh:
                 self.servoLibrary.move(self.servoIds[0], 0)
                 self.servoLibrary.move(self.servoIds[1], 0)
                 self.servoLibrary.move(self.servoIds[2], 0)
+                self.servoLibrary.move(self.servoIds[3], 0)
+
 
     def Dance(self, DanceType):
         pass
+
+    def StabilizeHead(self):
+        #Functions needed: readPosition to return the current position of the servo's.
+        #Step 1, get values of the servos
+        #Step 2, calculate the desired position of the head servo, by subtracting the 3rd servo's position from the 2nd servo position
+        #Step 3, Make the head servo move
+
+        Pos2 = self.servoLibrary.readPosition(self.servoIds[1], 0)
+        Pos3 = self.servoLibrary.readPosition(self.servoIds[2], 0)
+
+        Deg2 = Pos2 * 0.29
+        Deg3 = Pos3 * 0.29
+
+        HeadPos = Deg3 - Deg2
+
+        self.servoLibrary.move(self.servoIds[3], HeadPos)
+
