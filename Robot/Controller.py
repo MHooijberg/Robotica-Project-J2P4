@@ -1,20 +1,19 @@
 import asyncio
 from msilib.schema import Control
 
-#TODO: Fix import issues
-from .ComputerVision import Tracker
-from .Drivers import ArmDriver
+# TODO: Fix import issues
+import ComputerVision.Tracker
+import Drivers.ArmDriver
 #from .ExternalComponent import Camera
-from .ExternalComponent import Remote
-from .ExternalComponent import Screen
-from .IOComponent import Hcsr04
-from .IOComponent import Magnet
-from .IOComponent import Mdd3aDriver
-from .Socket import BluetoothSocket
+import ExternalComponent.Remote
+import ExternalComponent.Screen
+import IOComponent.Hcsr04
+import IOComponent.Magnet
+import IOComponent.Mdd3aDriver
+#from .Socket import BluetoothSocket
 # TODO: Don't import all form a folder, this is bad practice.
-from .Types import *
-from Types.SteeringMode import SteeringMode
-
+# import Types import *
+import Types.SteeringMode
 # ================
 # ---- Notes: ----
 # ================
@@ -34,12 +33,13 @@ from Types.SteeringMode import SteeringMode
 
 # TODO: I'd like to mention that self and Contoller.variable are used interchangebly.
 #       We need to do research on if this might be a bad practise.
+
+
 class Controller:
     # ===============================
     # ---------- Settings -----------
     # ===============================
     ShouldTurnnOff = False
-
 
     # ===============================
     # ------ Pin configuration ------
@@ -48,7 +48,7 @@ class Controller:
     M1B_PIN = 18
     M2A_PIN = 13
     M2B_PIN = 19
-    #MAGNET_PIN = 
+    # MAGNET_PIN =
 
     # ===============================
     # ---- Remote  configuration ----
@@ -66,7 +66,7 @@ class Controller:
     LOWER_ARM_SERVO_ID = 70
     UPPER_ARM_SERVO_ID = 71
     HEAD_SERVO_ID = 72
-    
+
     # ===============================
     # ---- Driving configuration ----
     # ===============================
@@ -74,7 +74,6 @@ class Controller:
     # TODO: Implement a setting to set from when it needs to turn in the special way.
     # TODO: Implement safety for max speed?
     STEERING_MODE = SteeringMode.static
-
 
     # TODO: Make all IOComponents configureable with pins
     # TODO: sort by the order of imports :) i like neat code.
@@ -95,7 +94,7 @@ class Controller:
     #   4. Repeat.
     # TODO: Discuss with group about being able to controll the arm while driving.
 
-    #TODO: States should be included, a state for each action like current magnet action etc.
+    # TODO: States should be included, a state for each action like current magnet action etc.
     #      Will save some resources because only when a state is changed something will happen.
     @staticmethod
     def Update_Loop():
@@ -105,8 +104,10 @@ class Controller:
             match command_array[4]:
                 case "Drive":
                     if (command_array[5] == "ON"):
-                        joystickA = Controller.Remote.JoystickToPercentage(command_array[0], command_array[2])
-                        print("Joystick output: x=" + str(joystickA[0]) + " y=" + str(joystickA[1]))
+                        joystickA = Controller.Remote.JoystickToPercentage(
+                            command_array[0], command_array[2])
+                        print("Joystick output: x=" +
+                              str(joystickA[0]) + " y=" + str(joystickA[1]))
                         # TODO: Joystick B Is not needed at the moment.
                         #joystickB = Controller.Remote.JoystickToPercentage(command_array[1], command_array[3])
                         Controller.Drive(joystickA)
@@ -117,7 +118,7 @@ class Controller:
                         Controller.Magnet.turnON()
                     else:
                         Controller.Magnet.turnOff()
-                    # TODO: command_array[6] is used for the gripper which we do not have.    
+                    # TODO: command_array[6] is used for the gripper which we do not have.
                 case "Dance":
                     pass
 
@@ -129,19 +130,18 @@ class Controller:
                 if direction[0] > 0 or direction[1] > 0:
                     strengthX = abs(direction[0])
                     strengthY = abs(direction[1])
-                    if  strengthY> strengthX:
+                    if strengthY > strengthX:
                         if direction[1] > 0:
-                            self.MotorDriver.Forward(strengthY,strengthY)
+                            self.MotorDriver.Forward(strengthY, strengthY)
                         else:
-                            self.MotorDriver.Backward(strengthY,strengthY)
+                            self.MotorDriver.Backward(strengthY, strengthY)
                     else:
                         if direction[0] > 0:
-                            self.MotorDriver.Forward(strengthX,strengthX)
+                            self.MotorDriver.Forward(strengthX, strengthX)
                         else:
-                            self.MotorDriver.Backward(strengthX,strengthX)
+                            self.MotorDriver.Backward(strengthX, strengthX)
 
             case SteeringMode.dynamic:
                 pass
             case SteeringMode.smooth:
                 pass
-

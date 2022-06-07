@@ -2,9 +2,10 @@ from IOComponent.Ax12a import Ax12
 from Types.ArmPosition import ArmPosition
 from time import sleep
 
-#TODO: Implement head, and maybe it should be positioned seperately from the arm.
+# TODO: Implement head, and maybe it should be positioned seperately from the arm.
 # TODO: maybe a head stabilisation code, where the head of the robot is kept stable,
 #       based on the position of the other servo's
+
 
 class ArmDriver:
     servoLibrary = Ax12()
