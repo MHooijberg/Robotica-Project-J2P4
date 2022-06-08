@@ -22,17 +22,37 @@ class Remote:
         self.Range = range
         self.InnerDeadzone = innerDeadzone
         self.OuterDeadzone = outerDeadzone
+        self.PreviousValueX = 0
+        self.PreviousValueY = 0
+#         self.PreviousValueXLeft = 0
+#         self.PreviousValueYLeft = 0
+#         self.PreviousValueXRight = 0
+#         self.PreviousValueYRight = 0
 
-    async def ReceiveData(self):
+    async def ReceiveData(self, client):
         try:
-            async with BleakClient(self.Address) as client:
-                raw_data = await client.read_gatt_char(self.Uuid)
-                data_array = format("".join(map(chr, raw_data))).split(",")
-                print("Data received over bluetooth: ", str(data_array))
-                return data_array
-        #except bleak.exc.BleakDBusError:
+            raw_data = await client.read_gatt_char(self.Uuid)
+            data_array = format("".join(map(chr, raw_data))).split(",")
+            print("Data received over bluetooth: ", str(data_array))
+            return data_array
+                
         except Exception as error:
+            self.connected = False
             print("Couldn't Connect to the XJ-9 Remote.\nHere are the details master:\n", error)
+#         else:
+#             await self.StartConnection()
+#             return None
+        
+                
+       
+     #   client = BleakClient(self.Address)
+     #   try:
+        #    await self.client:
+          #  raw_data = client.read_gatt_char(self.Uuid)
+          #  data_array = format("".join(map(chr, raw_data))).split(",")
+           # print("Data received over bluetooth: ", str(data_array))
+         #   return data_array
+        #except bleak.exc.BleakDBusError:
                 
 
     # Steps: 
@@ -48,7 +68,7 @@ class Remote:
         # TODO: Calibrate code with left and right and negative and positive with the actual hardware.
         #Percentage factor with full range.
         fullRangePercentageFactor = 100 / self.Range
-        
+
         if isLeftJoystick == True:
             xPos = int(xPosRaw) - self.CenterXLeft
             yPos = int(yPosRaw) - self.CenterYLeft
@@ -56,31 +76,51 @@ class Remote:
             xPos = int(xPosRaw) - self.CenterXRight
             yPos = int(yPosRaw) - self.CenterYRight
         
+
+
         absoluteInnerDeadzone = (int) (self.InnerDeadzone / fullRangePercentageFactor)
         absoluteOuterDeadzone = (int) (self.OuterDeadzone / fullRangePercentageFactor)
         # Percentage factor including the range bounds (deadzones)
         limitedRangePercentageFactor = 100 / (absoluteOuterDeadzone - absoluteInnerDeadzone)
-        
 
+        transitionedX = xPos * limitedRangePercentageFactor
+        transitionedY = yPos * limitedRangePercentageFactor
+        
         # Convert the x value to a percentage.
-        if xPos <= absoluteInnerDeadzone and xPos >= -absoluteInnerDeadzone:
+        if transitionedX <= self.InnerDeadzone and transitionedX >= -self.InnerDeadzone:
             transitionedX = 0
-        elif xPos >= absoluteOuterDeadzone:
+        elif transitionedX >= self.OuterDeadzone:
             transitionedX = 100
-        elif xPos <= -absoluteOuterDeadzone:
+        elif transitionedX <= -self.OuterDeadzone:
             transitionedX = -100
         else:
-            transitionedX = xPos * limitedRangePercentageFactor
-
-        # Conver the y value to a percentage.
-        if yPos <= absoluteInnerDeadzone and yPos >= -absoluteInnerDeadzone:
+            difference = abs(transitionedX - self.PreviousValueX)
+            if difference < 7:
+                transitionedX = self.PreviousValueX
+        
+        if transitionedY <= self.InnerDeadzone and transitionedY >= -self.InnerDeadzone:
             transitionedY = 0
-        elif yPos >= absoluteOuterDeadzone:
+        elif transitionedY >= self.OuterDeadzone:
             transitionedY = 100
-        elif yPos <= -absoluteOuterDeadzone:
+        elif transitionedY <= -self.OuterDeadzone:
             transitionedY = -100
         else:
-            transitionedY = xPos * limitedRangePercentageFactor
+            difference = abs(transitionedY - self.PreviousValueY)
+            if difference < 7:
+                transitionedY = self.PreviousValueY
+
+        # Conver the y value to a percentage.
+#         if yPos <= absoluteInnerDeadzone and yPos >= -absoluteInnerDeadzone:
+#             transitionedY = 0
+#         elif yPos >= absoluteOuterDeadzone:
+#             transitionedY = 100
+#         elif yPos <= -absoluteOuterDeadzone:
+#             transitionedY = -100
+#         else:
+#             transitionedY = xPos * limitedRangePercentageFactor
+#             difference = abs(transitionedY - self.PreviousValueY)
+#             if difference < 7:
+#                 transitionedY = self.PreviousValueY
 
         print("\n==== Debug JoystickConversion ====",
               "\nX Position: ", xPosRaw,
@@ -99,6 +139,9 @@ class Remote:
               )
 
         print("Joystick output: x=",transitionedX,"% y=",transitionedY,"%", sep='')
+        
+        self.PreviousValueX = transitionedX
+        self.PreviousValueY = transitionedY
         return (transitionedX, transitionedY)
 
     def SetJoystickDeadzone(self, innerDeadzone, outerDeadzone):
