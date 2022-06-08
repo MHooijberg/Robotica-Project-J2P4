@@ -9,7 +9,7 @@ from time import sleep
 # TODO: Test how fast it goes if you go forward with a speed of 0%
 
 class Mdd3aDriver:
-    pins = array.array(int)
+    pins = [int]
 
     def __init__(self, m1aPin, m1bPin, m2aPin, m2bPin):
         GPIO.setmode(GPIO.BCM)
