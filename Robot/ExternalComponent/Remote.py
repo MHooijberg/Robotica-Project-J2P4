@@ -22,6 +22,7 @@ class Remote:
         self.Range = range
         self.InnerDeadzone = innerDeadzone
         self.OuterDeadzone = outerDeadzone
+<<<<<<< HEAD
         self.PreviousValueX = 0
         self.PreviousValueY = 0
 #         self.PreviousValueXLeft = 0
@@ -53,7 +54,51 @@ class Remote:
            # print("Data received over bluetooth: ", str(data_array))
          #   return data_array
         #except bleak.exc.BleakDBusError:
+=======
+        self.connected = False
+        
+    async def StartConnection(self):
+        self.client = BleakClient(self.Address)
+        try:
+            await client.connect()
+        except Exception as e:
+            print(e)
+            self.connected = False
+        else:
+            self.connected = True
+            print("Connection has been made KING")
+
+
+    async def ReceiveData(self):
+        if self.connected:
+            try:               
+                raw_data = await self.client.read_gatt_char(self.Uuid)
+                data_array = format("".join(map(chr, raw_data))).split(",")
+                print("Data received over bluetooth: ", str(data_array))
+                return data_array
+>>>>>>> f127bdaeea613b813eaea9a92870c92515f73965
                 
+            except Exception as error:
+                print("Couldn't Connect to the XJ-9 Remote.\nHere are the details master:\n", error)
+        
+        
+                
+       
+     #   client = BleakClient(self.Address)
+     #   try:
+        #    await self.client:
+          #  raw_data = client.read_gatt_char(self.Uuid)
+          #  data_array = format("".join(map(chr, raw_data))).split(",")
+           # print("Data received over bluetooth: ", str(data_array))
+         #   return data_array
+                    
+           
+        #except bleak.exc.BleakDBusError:
+        #except Exception as error:
+         #   print("Couldn't Connect to the XJ-9 Remote.\nHere are the details master:\n", error)
+        
+        #finally:
+         #   await client.disconnect()
 
     # Steps: 
     #   1. Het midden moet null zijn.
