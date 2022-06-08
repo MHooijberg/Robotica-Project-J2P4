@@ -12,7 +12,7 @@
 #         print()
 #         if (len(Camera.frameList) == 72):
 #             frame = Camera.GetFrame(71)
-#             print(type(frame))
+#             print(type(frame))        
 #             print("Getting Object Position:")
 #             tracker.GetPositionTrackingObject(frame)
 #         #print("\n HELLO WORLD \n")
@@ -22,6 +22,6 @@
 # asyncio.ensure_future(function_2())
 # loop.run_forever()
 
-import Controller
+from Controller import Controller
 
 Controller.Update_Loop()

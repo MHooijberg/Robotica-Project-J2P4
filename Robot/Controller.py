@@ -1,19 +1,19 @@
 import asyncio
-from msilib.schema import Control
+from time import sleep
 
 # TODO: Fix import issues
-import ComputerVision.Tracker
-import Drivers.ArmDriver
+from ComputerVision.Tracker import Tracker
+from Drivers.ArmDriver import  ArmDriver
 #from .ExternalComponent import Camera
-import ExternalComponent.Remote
-import ExternalComponent.Screen
-import IOComponent.Hcsr04
-import IOComponent.Magnet
-import IOComponent.Mdd3aDriver
+from ExternalComponent.Remote import Remote
+from ExternalComponent.Screen import Screen
+from IOComponent.Hcsr04 import Hcsr04
+from IOComponent.Magnet import Magnet
+from IOComponent.Mdd3aDriver import Mdd3aDriver
 #from .Socket import BluetoothSocket
 # TODO: Don't import all form a folder, this is bad practice.
 # import Types import *
-import Types.SteeringMode
+from Types.SteeringMode import SteeringMode
 # ================
 # ---- Notes: ----
 # ================
@@ -53,10 +53,15 @@ class Controller:
     # ===============================
     # ---- Remote  configuration ----
     # ===============================
-    CENTER_X = 2047
-    CENTER_Y = 2047
+    ADDRESS = "78:E3:6D:12:1B:C6"
+    UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+    CENTER_X_LEFT = 1959
+    CENTER_Y_LEFT = 1644
+    CENTER_X_RIGHT = 1755
+    CENTER_Y_RIGHT = 1782
     RANGE = 2047
-    INNER_DEADZONE = 9.75
+    # TODO: Finetune the inner deadzone more :)
+    INNER_DEADZONE = 8 # 9.75% = +/- 200 posities, 1847
     OUTER_DEADZONE = 100
 
     # ===============================
@@ -78,14 +83,11 @@ class Controller:
     # TODO: Make all IOComponents configureable with pins
     # TODO: sort by the order of imports :) i like neat code.
     ObjectTracker = Tracker()
-    Arm = ArmDriver()
-    Remote = Remote(CENTER_X, CENTER_Y, RANGE, INNER_DEADZONE, OUTER_DEADZONE)
+    Arm = ArmDriver(63, 23, 32, 69)
+    Remote = Remote(ADDRESS, UUID, CENTER_X_LEFT, CENTER_Y_LEFT, CENTER_X_RIGHT, CENTER_Y_RIGHT, RANGE, INNER_DEADZONE, OUTER_DEADZONE)
     Screen = Screen()
     #Magnet = Magnet(MAGNET_PIN)
     MotorDriver = Mdd3aDriver(M1A_PIN, M1B_PIN, M2A_PIN, M2B_PIN)
-
-    def __init__(self):
-        pass
 
     # Update Loop Cycle:
     #   1. Retrieve Settings from remote.
@@ -99,49 +101,48 @@ class Controller:
     @staticmethod
     def Update_Loop():
         while Controller.ShouldTurnnOff is False:
-            command_array = asyncio.run(Controller.Bluetooth.ReceiveData())
-
-            match command_array[4]:
-                case "Drive":
+            command_array = asyncio.run(Controller.Remote.ReceiveData())
+            if command_array is None:
+#                 sleep(0.5)
+                continue
+            if command_array[4] == "Drive":
                     if (command_array[5] == "ON"):
                         joystickA = Controller.Remote.JoystickToPercentage(
-                            command_array[0], command_array[2])
-                        print("Joystick output: x=" +
-                              str(joystickA[0]) + " y=" + str(joystickA[1]))
+                            command_array[0], command_array[1], True)
                         # TODO: Joystick B Is not needed at the moment.
                         #joystickB = Controller.Remote.JoystickToPercentage(command_array[1], command_array[3])
-                        Controller.Drive(joystickA)
+                        #Controller.Drive(joystickA)
                     elif (command_array[6] == "ON"):
                         pass
-                case "Robot Arm":
+            elif command_array[4] == "Robot Arm":
                     if (command_array[5] == "ON"):
                         Controller.Magnet.turnON()
                     else:
                         Controller.Magnet.turnOff()
                     # TODO: command_array[6] is used for the gripper which we do not have.
-                case "Dance":
+            elif command_array[4] == "Dance":
                     pass
 
     # TODO: Find a better position for this code.
     # TODO: I need to test the output of the controller to see if x can be 100 without y being 100
-    def Drive(self, direction):
-        match Controller.STEERING_MODE:
-            case SteeringMode.static:
-                if direction[0] > 0 or direction[1] > 0:
-                    strengthX = abs(direction[0])
-                    strengthY = abs(direction[1])
-                    if strengthY > strengthX:
-                        if direction[1] > 0:
-                            self.MotorDriver.Forward(strengthY, strengthY)
-                        else:
-                            self.MotorDriver.Backward(strengthY, strengthY)
+    @staticmethod
+    def Drive(direction):
+        if Controller.STEERING_MODE == SteeringMode.static:
+            if direction[0] > 0 or direction[1] > 0:
+                strengthX = abs(direction[0])
+                strengthY = abs(direction[1])
+                if strengthY > strengthX:
+                    if direction[1] > 0:
+                        Controller.MotorDriver.Forward(strengthY, strengthY)
                     else:
-                        if direction[0] > 0:
-                            self.MotorDriver.Forward(strengthX, strengthX)
-                        else:
-                            self.MotorDriver.Backward(strengthX, strengthX)
+                        Controller.MotorDriver.Backward(strengthY, strengthY)
+                else:
+                    if direction[0] > 0:
+                        Controller.MotorDriver.Forward(strengthX, strengthX)
+                    else:
+                        Controller.MotorDriver.Backward(strengthX, strengthX)
 
-            case SteeringMode.dynamic:
+        elif Controller.STEERING_MODE == SteeringMode.dynamic:
                 pass
-            case SteeringMode.smooth:
+        elif Controller.STEERING_MODE == SteeringMode.smooth:
                 pass
