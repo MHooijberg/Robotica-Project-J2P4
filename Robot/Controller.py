@@ -152,6 +152,10 @@ class Controller:
                         Controller.MotorDriver.RotateLeft(strengthX)
                     elif direction[0] < 0:
                         Controller.MotorDriver.RotateRight(strengthX)
+            elif direction[0] == 0 and direction[1] == 0:
+                Controller.MotorDriver.stop()
+                
+                    
 
         elif Controller.STEERING_MODE == SteeringMode.dynamic:
                 pass

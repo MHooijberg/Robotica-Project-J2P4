@@ -22,24 +22,25 @@ class Remote:
         self.Range = range
         self.InnerDeadzone = innerDeadzone
         self.OuterDeadzone = outerDeadzone
-<<<<<<< HEAD
         self.PreviousValueX = 0
         self.PreviousValueY = 0
+        #self.connected = False
 #         self.PreviousValueXLeft = 0
 #         self.PreviousValueYLeft = 0
 #         self.PreviousValueXRight = 0
 #         self.PreviousValueYRight = 0
 
-    async def ReceiveData(self, client):
-        try:
-            raw_data = await client.read_gatt_char(self.Uuid)
-            data_array = format("".join(map(chr, raw_data))).split(",")
-            print("Data received over bluetooth: ", str(data_array))
-            return data_array
-                
-        except Exception as error:
-            self.connected = False
-            print("Couldn't Connect to the XJ-9 Remote.\nHere are the details master:\n", error)
+#     async def ReceiveData(self, client):
+#         try:
+#             raw_data = await client.read_gatt_char(self.Uuid)
+#             data_array = format("".join(map(chr, raw_data))).split(",")
+#             print("Data received over bluetooth: ", str(data_array))
+#             return data_array
+#                 
+#         except Exception as error:
+#             #self.connected = False
+#             print("Couldn't Connect to the XJ-9 Remote.\nHere are the details master:\n", error)
+            
 #         else:
 #             await self.StartConnection()
 #             return None
@@ -54,8 +55,6 @@ class Remote:
            # print("Data received over bluetooth: ", str(data_array))
          #   return data_array
         #except bleak.exc.BleakDBusError:
-=======
-        self.connected = False
         
     async def StartConnection(self):
         self.client = BleakClient(self.Address)
@@ -69,17 +68,15 @@ class Remote:
             print("Connection has been made KING")
 
 
-    async def ReceiveData(self):
-        if self.connected:
-            try:               
-                raw_data = await self.client.read_gatt_char(self.Uuid)
-                data_array = format("".join(map(chr, raw_data))).split(",")
-                print("Data received over bluetooth: ", str(data_array))
-                return data_array
->>>>>>> f127bdaeea613b813eaea9a92870c92515f73965
+    async def ReceiveData(self, client):
+        try:               
+            raw_data = await client.read_gatt_char(self.Uuid)
+            data_array = format("".join(map(chr, raw_data))).split(",")
+            print("Data received over bluetooth: ", str(data_array))
+            return data_array
                 
-            except Exception as error:
-                print("Couldn't Connect to the XJ-9 Remote.\nHere are the details master:\n", error)
+        except Exception as error:
+            print("Couldn't Connect to the XJ-9 Remote.\nHere are the details master:\n", error)
         
         
                 
