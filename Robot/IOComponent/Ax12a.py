@@ -129,7 +129,7 @@ class Ax12:
     TX_DELAY_TIME = 0.00002
 
     # direction constants
-    DIRECTION_PIN = 4  # sysfs GPIO0 for Orbitty Carrier in Jetson TX2
+    DIRECTION_PIN = 4
     DIRECTION_TX = GPIO.HIGH
     DIRECTION_RX = GPIO.LOW
     DIRECTION_SWITCH_DELAY = 0.0001

@@ -27,19 +27,19 @@ class ArmDriver:
         self.StabilizeHead()
 
     # TODO: add security for when armPosition is null.
-#     def MoveTo(self, armPosition):
-#         match armPosition:
-#             case ArmPosition.Rest:
-#                 self.servoLibrary.move(self.servoIds[0], 0)
-#                 self.servoLibrary.move(self.servoIds[1], 0)
-#                 self.servoLibrary.move(self.servoIds[2], 0)
-#                 self.servoLibrary.move(self.servoIds[3], 0)
-#
-#             case ArmPosition.Weigh:
-#                 self.servoLibrary.move(self.servoIds[0], 0)
-#                 self.servoLibrary.move(self.servoIds[1], 0)
-#                 self.servoLibrary.move(self.servoIds[2], 0)
-#                 self.servoLibrary.move(self.servoIds[3], 0)
+    def MoveTo(self, armPosition):
+        match armPosition:
+            case ArmPosition.Rest:
+                self.servoLibrary.move(self.servoIds[0], 0)
+                self.servoLibrary.move(self.servoIds[1], 0)
+                self.servoLibrary.move(self.servoIds[2], 0)
+                self.servoLibrary.move(self.servoIds[3], 0)
+
+            case ArmPosition.Weigh:
+                self.servoLibrary.move(self.servoIds[0], 0)
+                self.servoLibrary.move(self.servoIds[1], 0)
+                self.servoLibrary.move(self.servoIds[2], 0)
+                self.servoLibrary.move(self.servoIds[3], 0)
 
     def Dance(self, DanceType):
         pass

@@ -1,3 +1,4 @@
+from tkinter import W
 import librosa
 import IPython.display as ipd
 import time
@@ -9,22 +10,41 @@ class WheelDriver:
     def __init__(self, m1a, m1b, m2a, m2b):
         self.Wheels = Mdd3aDriver(m1a, m1b, m2a, m2b)
 
-    def Drive(self, mode, direction):
+    def Brake(self):
+        self.Wheels.Brake()
+
+    def Drive(self, direction, mode):
+        # If the direction is 0 brake.
         if direction[0] == 0 and direction[1] == 0:
             self.Wheels.Brake()
         else:
+            # Static: Just drive or turn, not both.
             if mode == SteeringMode.static:
                 strengthX = abs(direction[0])
                 strengthY = abs(direction[1])
-                if strengthY > strengthX:
+                if strengthY >= strengthX:
                     self.Wheels.Move(direction[1], direction[1])
                 else:
                     self.Wheels.Rotate(direction[0])
 
-            elif mode == SteeringMode.dynamic:
-                pass
-            elif mode == SteeringMode.smooth:
-                pass
+            # Dynamic: Drive, turn and rotatate around center axis at 100%.
+            # Smooth: Drive and turn at the same time, but can't rotate.
+            elif mode == SteeringMode.smooth or mode == SteeringMode.dynamic:
+                naturalHorizontalDirection = abs(direction[0])
+
+                if mode == SteeringMode.dynamic and naturalHorizontalDirection == 100:
+                    self.Wheels.Rotate(direction[0])
+                else:                    
+                    # Secondary wheel = X% of the speed of the primary wheel.
+                    secondaryWheelSpeed = (direction[1] / 100) * naturalHorizontalDirection
+                    if direction[0] != 0:
+                        # Determain if the left or right wheel should be the primary / secondary wheel.
+                        leftSpeed = secondaryWheelSpeed if direction[0] < 0 else direction[1]
+                        rightSpeed = secondaryWheelSpeed if direction[0] > 0 else direction[1]
+                    else:
+                        # If no direction is given go forward equal to the power of the Y-direction.
+                        leftSpeed, rightSpeed = direction[1]
+                    self.Wheels.Move(leftSpeed, rightSpeed)
 
     def Dance(self):
         x, sr = librosa.load('/dansje.wav')

@@ -1,5 +1,6 @@
 # ==== General Imports: ====
 import asyncio
+from msilib.schema import Control
 from bleak import BleakClient
 
 # ==== Package Imports ====
@@ -10,6 +11,8 @@ from ExternalComponent.Remote import Remote
 from ExternalComponent.Screen import Screen
 from IOComponent.Hcsr04 import Hcsr04
 from IOComponent.Magnet import Magnet
+from Types.Action import Action
+from Types.ArmPosition import ArmPosition
 from Types.SteeringMode import SteeringMode
 
 # ================
@@ -17,43 +20,66 @@ from Types.SteeringMode import SteeringMode
 # ================
 # TODO: Implement setting to set steering at max value, (turning 1 wheel or rotating around axis)
 # TODO: Implement a setting to set from when it needs to turn in the special way.
-#
+# TODO: Implement a start and stop animation in the DefaultPosition.
+# TODO: Discuss what would be better, intialize the libraries here with settings and give that as arguments to the drivers or give the settings to the drivers.
+# TODO: Fill up more pins, not all have been configured
+# TODO: Discuss if the robot should stop its action when the controller loses connection.
+# #
 # Robot life cycle steps:
 #   1. Initialize Objects.
 #   2. Go to starting position:
 #        - Wheels on brake
 #        - Arm in folded position
+#        - Make sure all components are in their default state.
+#        - Initialize GPIO here
 #   3. Go into update cycle:
 #        - Connect to bluetooth controller
 #        - Read instructions from controller.
 #        - Execute instruction / command:
-#           - Drive:
-#           - Arm:
-#           -
+#           - Manually:
+#               - Drive
+#               - Arm
+#               - Magnet
+#           - Autonomous:
+#               - BlueBlock
+#               - BlackLine
+#               - Shavings
+#           - Dance:
+#               - LineDance
+#               - The other dance :)
 #        -
-
-# Update Loop Cycle:
-#   1. Retrieve Settings from remote.
-#   2. Change State based on the remote settings.
-#   3. Start / Keep doing action if State Changed.
-#   4. Repeat.
-# TODO: Discuss with group about being able to controll the arm while driving.
+#   4. Shutdown:
+#        - Good bye message.
+#        - Return to default position.
+#        - Return GPIO to their default states.
+#        - Clean up serial and GPIO channel.
+#        - Shutdown system.
 
 
 class Controller:
     # ===============================
     # ---------- Settings -----------
     # ===============================
-    ShouldTurnnOff = False
+    SHOULD_TURN_OFF = False
+    SHOULD_ANIMATE_SHUTDOWN = False
+    SHOULD_ANIMATE_START = True
+
 
     # ===============================
     # ------ Pin configuration ------
     # ===============================
-    M1A_PIN = 12
-    M1B_PIN = 18
+    HCSR04_ECHO_PIN = 20
+    HCSR04_TRIGGER_PIN = 16
+    HX711_DATA_PIN = 5
+    HX711_CLOCK_PIN = 5
+    M1A_PIN = 18
+    M1B_PIN = 12
     M2A_PIN = 13
     M2B_PIN = 19
-    # MAGNET_PIN =
+    MAGNET_PIN = 22
+    SHUTDOWN_SWITCH_PIN = 17
+    DISPLAY_SERVO_SWITCH_PIN = 24
+    
 
     # ===============================
     # ---- Remote  configuration ----
@@ -82,8 +108,11 @@ class Controller:
     STEERING_MODE = SteeringMode.static
 
     # ===============================
-    # ------- Starting States -------
+    # ----------- States ------------
     # ===============================
+    ARM_START_POSITION = ArmPosition.Folded
+    WHEEL_START_ACTION = Action.Stop
+    MAGNET_IS_ACTIVE = False
 
     # ===============================
     # ------ Object  Instances ------
@@ -99,13 +128,13 @@ class Controller:
 
     @staticmethod
     async def Update_Loop():
-
-        while Controller.ShouldTurnnOff is False:
+        Controller.DefaultPosition()
+        while Controller.SHOULD_TURN_OFF is False:
             # Try to connect with the controller. If it succeeds, perform handle the commands.
             try:
                 async with BleakClient(Controller.ADDRESS, timeout=0.5) as client:
                     # Keep reading instructions untill the robot is told to turn off.
-                    while Controller.ShouldTurnnOff is False:
+                    while Controller.SHOULD_TURN_OFF is False:
                         # Read data from the remote.
                         command_array = await Controller.Remote.ReceiveData(client)
                         # If we don't receive any data, terminate this iteration and try again.
@@ -118,14 +147,16 @@ class Controller:
                             if command_array[5] == "ON":
                                 joystickA = Controller.Remote.JoystickToPercentage(
                                     command_array[0], command_array[2], True)
-                                Controller.Drive(joystickA)
+                                Controller.MotorDriver.Drive(joystickA, Controller.STEERING_MODE)
                             # Control Arm
                             elif command_array[6] == "ON":
                                 pass
                             # Turn on and off the magnet.
-                            if command_array[7] == "ON":
+                            if command_array[7] == "ON" and Controller.MAGNET_IS_ACTIVE is False:
+                                Controller.MAGNET_IS_ACTIVE = True
                                 Controller.Magnet.turnON()
-                            elif command_array[7] == "OFF":
+                            elif command_array[7] == "OFF" and Controller.MAGNET_IS_ACTIVE is True:
+                                Controller.MAGNET_IS_ACTIVE = False
                                 Controller.Magnet.turnOff()
 
                         # Handle the autonomous control menu.
@@ -149,8 +180,8 @@ class Controller:
                 continue
             # If any exception is thrown or when the robot should turn off go to default position.
             finally:
-                pass
+                Controller.Default_Position()
 
     @staticmethod
     def DefaultPosition():
-        pass
+        Controller.MotorDriver.Brake()

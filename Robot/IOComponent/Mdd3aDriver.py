@@ -23,12 +23,14 @@ class Mdd3aDriver:
             self.pwmPins[x].start(0)
 
     def Move(self, speedLeft, speedRight):
+        # Left Wheel:
         if speedLeft > 0:
             self.pwmPins[0].ChangeDutyCycle(speedLeft)
             self.pwmPins[1].ChangeDutyCycle(0)
         elif speedLeft < 0:
             self.pwmPins[1].ChangeDutyCycle(abs(speedLeft))
             self.pwmPins[0].ChangeDutyCycle(0)
+        # Right Wheel:
         if speedRight > 0:
             self.pwmPins[2].ChangeDutyCycle(speedRight)
             self.pwmPins[3].ChangeDutyCycle(0)
