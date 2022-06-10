@@ -1,13 +1,9 @@
 import asyncio
 from bleak import BleakClient
-#from bleak import exc.BleakDBusError
+# from bleak import exc.BleakDBusError
+
 
 class Remote:
-    # TODO: The remote might send fluctuations when moving the joystick,
-    #       a solution would be an implementation for an error margin,
-    #       in other words the percentage needs to differ an x amount
-    #       before it will update to the robot.
-
     # Definitions:
     #   center (x/y): From this point the center is calculated
     #   inner Deadzone: How far (in percentage) the stick has to be pushed before responding to input.
@@ -36,26 +32,24 @@ class Remote:
 #             data_array = format("".join(map(chr, raw_data))).split(",")
 #             print("Data received over bluetooth: ", str(data_array))
 #             return data_array
-#                 
+#
 #         except Exception as error:
 #             #self.connected = False
 #             print("Couldn't Connect to the XJ-9 Remote.\nHere are the details master:\n", error)
-            
+
 #         else:
 #             await self.StartConnection()
 #             return None
-        
-                
-       
+
      #   client = BleakClient(self.Address)
      #   try:
         #    await self.client:
-          #  raw_data = client.read_gatt_char(self.Uuid)
-          #  data_array = format("".join(map(chr, raw_data))).split(",")
-           # print("Data received over bluetooth: ", str(data_array))
-         #   return data_array
-        #except bleak.exc.BleakDBusError:
-        
+        #  raw_data = client.read_gatt_char(self.Uuid)
+        #  data_array = format("".join(map(chr, raw_data))).split(",")
+        # print("Data received over bluetooth: ", str(data_array))
+        #   return data_array
+        # except bleak.exc.BleakDBusError:
+
     async def StartConnection(self):
         self.client = BleakClient(self.Address)
         try:
@@ -67,20 +61,17 @@ class Remote:
             self.connected = True
             print("Connection has been made KING")
 
-
     async def ReceiveData(self, client):
-        try:               
+        try:
             raw_data = await client.read_gatt_char(self.Uuid)
             data_array = format("".join(map(chr, raw_data))).split(",")
             print("Data received over bluetooth: ", str(data_array))
             return data_array
-                
+
         except Exception as error:
-            print("Couldn't Connect to the XJ-9 Remote.\nHere are the details master:\n", error)
-        
-        
-                
-       
+            print(
+                "Couldn't Connect to the XJ-9 Remote.\nHere are the details master:\n", error)
+
      #   client = BleakClient(self.Address)
      #   try:
         #    await self.client:
@@ -88,16 +79,15 @@ class Remote:
           #  data_array = format("".join(map(chr, raw_data))).split(",")
            # print("Data received over bluetooth: ", str(data_array))
          #   return data_array
-                    
-           
-        #except bleak.exc.BleakDBusError:
-        #except Exception as error:
+
+        # except bleak.exc.BleakDBusError:
+        # except Exception as error:
          #   print("Couldn't Connect to the XJ-9 Remote.\nHere are the details master:\n", error)
-        
-        #finally:
+
+        # finally:
          #   await client.disconnect()
 
-    # Steps: 
+    # Steps:
     #   1. Het midden moet null zijn.
     #   2. X en Y naar callibreren naar het midden converten.
     #   3. Deadzones bepalen
@@ -106,9 +96,10 @@ class Remote:
 
     # TODO: there are different types of deadzones, see if they are fun and usefull to implement?
     #       For example you could do something per quardrant so that you can define the x range seperately from the y.
+
     def JoystickToPercentage(self, xPosRaw, yPosRaw, isLeftJoystick):
         # TODO: Calibrate code with left and right and negative and positive with the actual hardware.
-        #Percentage factor with full range.
+        # Percentage factor with full range.
         fullRangePercentageFactor = 100 / self.Range
 
         if isLeftJoystick == True:
@@ -117,17 +108,18 @@ class Remote:
         else:
             xPos = int(xPosRaw) - self.CenterXRight
             yPos = int(yPosRaw) - self.CenterYRight
-        
 
-
-        absoluteInnerDeadzone = (int) (self.InnerDeadzone / fullRangePercentageFactor)
-        absoluteOuterDeadzone = (int) (self.OuterDeadzone / fullRangePercentageFactor)
+        absoluteInnerDeadzone = (int)(
+            self.InnerDeadzone / fullRangePercentageFactor)
+        absoluteOuterDeadzone = (int)(
+            self.OuterDeadzone / fullRangePercentageFactor)
         # Percentage factor including the range bounds (deadzones)
-        limitedRangePercentageFactor = 100 / (absoluteOuterDeadzone - absoluteInnerDeadzone)
+        limitedRangePercentageFactor = 100 / \
+            (absoluteOuterDeadzone - absoluteInnerDeadzone)
 
         transitionedX = xPos * limitedRangePercentageFactor
         transitionedY = yPos * limitedRangePercentageFactor
-        
+
         # Convert the x value to a percentage.
         if transitionedX <= self.InnerDeadzone and transitionedX >= -self.InnerDeadzone:
             transitionedX = 0
@@ -139,7 +131,7 @@ class Remote:
             difference = abs(transitionedX - self.PreviousValueX)
             if difference < 7:
                 transitionedX = self.PreviousValueX
-        
+
         if transitionedY <= self.InnerDeadzone and transitionedY >= -self.InnerDeadzone:
             transitionedY = 0
         elif transitionedY >= self.OuterDeadzone:
@@ -173,15 +165,17 @@ class Remote:
               "\nCentered Y Position: ", yPos,
               "\nabsoluteInnerDeadzone: ", absoluteInnerDeadzone,
               "\nabsoluteOuterDeadzone: ", absoluteOuterDeadzone,
-              "\nRemaining Range: ",(absoluteOuterDeadzone - absoluteInnerDeadzone),
+              "\nRemaining Range: ", (absoluteOuterDeadzone -
+                                      absoluteInnerDeadzone),
               "\nlimitedRangePercentageFactor: ", limitedRangePercentageFactor,
               "\ntansitionedX: ", transitionedX,
               "\ntransitionedY: ", transitionedY,
               "\n=== End of Debug Information ===="
               )
 
-        print("Joystick output: x=",transitionedX,"% y=",transitionedY,"%", sep='')
-        
+        print("Joystick output: x=", transitionedX,
+              "% y=", transitionedY, "%", sep='')
+
         self.PreviousValueX = transitionedX
         self.PreviousValueY = transitionedY
         return (transitionedX, transitionedY)
@@ -189,7 +183,3 @@ class Remote:
     def SetJoystickDeadzone(self, innerDeadzone, outerDeadzone):
         self.InnerDeadzone = innerDeadzone
         self.OuterDeadzone = outerDeadzone
-
-
-
-

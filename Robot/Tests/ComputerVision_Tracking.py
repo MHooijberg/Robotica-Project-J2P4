@@ -8,13 +8,12 @@ def ComputerVisionTrackingTest():
     while True:
         current_direction = Tracker().GetPositionTrackingObject()
         if ObjectPosition.left:
-                    print("links")
+            print("links")
         if ObjectPosition.middle:
-                    print("midden")
+            print("midden")
         if ObjectPosition.right:
-                    print("rechts")
+            print("rechts")
         last_direction = current_direction
 
 
-# TODO: Define how we test, now this code will be executed after importing (if I'm not mistaken).
 ComputerVisionTrackingTest()

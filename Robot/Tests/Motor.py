@@ -13,5 +13,4 @@ def MotorTest():
         time.sleep(3)
 
 
-# TODO: Define how we test, now this code will be executed after importing (if I'm not mistaken).
 MotorTest()
