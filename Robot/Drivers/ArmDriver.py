@@ -1,6 +1,7 @@
 from IOComponent.Ax12a import Ax12
 from Types.ArmPosition import ArmPosition
 from time import sleep
+from Types.Action import Action
 
 # TODO: Implement head, and maybe it should be positioned seperately from the arm.
 # TODO: maybe a head stabilisation code, where the head of the robot is kept stable,
@@ -54,6 +55,8 @@ class ArmDriver:
         #Step 2, calculate the desired position of the head servo, by subtracting the 3rd servo's position from the 2nd servo position
         #Step 3, Make the head servo move
 
+        #TODO: Put the 0.29 and 150 magic numbers into variables
+    
         pos2 = self.servoLibrary.readPosition(self.servoIds[1])
         pos3 = self.servoLibrary.readPosition(self.servoIds[2])
         currentHeadPos = self.servoLibrary.readPosition(self.servoIds[3])
@@ -81,3 +84,22 @@ class ArmDriver:
         # TODO: Jur er moet alleen nog gekeken worden of de neededRotation links om of rechts om gaat. hoe? geen idee.
         self.servoLibrary.move(int(self.servoIds[3]), headPos)
 
+    def moveDirection(self, step, direction):
+
+        if direction == Action.Up:
+
+            self.servoLibrary.move(int(self.servoIds[1]), step)
+            self.servoLibrary.move(int(self.servoIds[2]), step)
+
+        elif direction == Action.Down:
+
+            self.servoLibrary.move(int(self.servoIds[1]), step)
+            self.servoLibrary.move(int(self.servoIds[2]), step)
+
+        elif direction == Action.Left:
+
+            self.servoLibrary.move(int(self.servoIds[0]), step)
+
+        elif direction == Action.Right:
+            
+            self.servoLibrary.move(int(self.servoIds[0]), step)
