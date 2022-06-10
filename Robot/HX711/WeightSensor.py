@@ -2,24 +2,6 @@ from hx711 import HX711
 import time
 import sys
 import RPi.GPIO as GPIO
-#
-#      ^             ^
-#     / \           / \
-#    /   \         /   \
-#   /     \       /     \  
-#  /    |-->     <--|    \
-# /     |           |     \
-# \     |           |     /
-#  \    |-----------|    /
-#   \  /             \  /
-#    \/               \/
-#    |    /-\   /-\    |
-#    |    | |   | |    |
-#    |    \-/   \-/    |
-#    \                 /
-#     \      \_/      /
-#      \_____________/
-#
 # The following is modified code from the 'example' file from https://github.com/tatobari/hx711py
 # The 'hx711' file is from the same source and is not modified at all
 # Any comments from, with some exeptions, from this file as well as the 'hx711' file have been added by the original creator
@@ -81,3 +63,21 @@ class WeightSensor:
         self.hx.power_down()
         self.hx.power_up()
         return val
+#
+#      ^             ^
+#     / \           / \
+#    /   \         /   \
+#   /     \       /     \  
+#  /    |-->     <--|    \
+# /     |           |     \
+# \     |           |     /
+#  \    |-----------|    /
+#   \  /             \  /
+#    \/               \/
+#    |    /-\   /-\    |
+#    |    | |   | |    |
+#    |    \-/   \-/    |
+#    \                 /
+#     \      \_/      /
+#      \_____________/
+#
