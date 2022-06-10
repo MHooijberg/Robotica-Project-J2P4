@@ -1,6 +1,10 @@
 import asyncio
+from time import sleep
+#import for dance
+import librosa 
+import IPython.display as ipd 
+import time
 from bleak import BleakClient
-
 # TODO: Fix import issues
 from ComputerVision.Tracker import Tracker
 from Drivers.ArmDriver import ArmDriver
@@ -161,3 +165,49 @@ class Controller:
                 pass
         elif Controller.STEERING_MODE == SteeringMode.smooth:
                 pass
+
+    def Dance(self):
+        x, sr = librosa.load('/dansje.wav') 
+        ipd.Audio(x, rate=sr)
+        tempo, beat = librosa.beat.beat_track(x, sr=sr, start_bpm=103, units='time')
+        print(len(beat))
+        print(beat[1])
+        #ADD the motor functions and arm functions
+        self.MotorDriver.Forward(0,0,0)
+        time.sleep(beat[3])
+        self.MotorDriver.RotateLeft(50)
+        self.ArmDriver.MoveTo(0, 0, 0)
+        self.ArmDriver.MoveTo(0, 20, 20)
+        time.sleep(beat[15]-beat[3])
+        self.MotorDriver.Forward(30, 10)
+        time.sleep(beat[30]-beat[15])
+        self.MotorDriver.RotateRight(50)
+        time.sleep(beat[45]-beat[30])
+        self.MotorDriver.Forward(30, 10)
+        time.sleep(beat[60]-beat[45])
+        self.MotorDriver.RotateRight(50)
+        time.sleep(beat[75]-beat[60])
+        self.MotorDriver.Forward(30, 10)
+        time.sleep(beat[90]-beat[75])
+        self.MotorDriver.RotateRight(50)
+        time.sleep(beat[105]-beat[90])
+        self.MotorDriver.Forward(30,10)
+        time.sleep(beat[120]-beat[105])
+        self.MotorDriver.RotateRight(50) 
+        time.sleep(beat[135]-beat[120])
+        self.MotorDriver.Forward(30, 10)
+        time.sleep(beat[150]-beat[135])
+        self.MotorDriver.RotateRight(50)
+        time.sleep(beat[165]-beat[150])
+        self.MotorDriver.Forward(30, 10)
+        time.sleep(beat[180]-beat[165])
+        self.MotorDriver.RotateRight(50)
+        time.sleep(beat[195]-beat[180])
+        self.MotorDriver.Backward(20, 20)
+        time.sleep(beat[203]-beat[190])
+        self.MotorDriver.Brake()
+        self.ArmDriver.MoveTo(0,0,0)
+
+
+    
+        
