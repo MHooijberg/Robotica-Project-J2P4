@@ -329,8 +329,13 @@ class Ax12:
         self.direction(Ax12.DIRECTION_TX)
         Ax12.port.flushInput()
         p = [position & 0xff, position >> 8]
-        checksum = (~(id + Ax12.AX_GOAL_LENGTH + Ax12.AX_WRITE_DATA +
-                    Ax12.AX_GOAL_POSITION_L + p[0] + p[1])) & 0xff
+#         print("Type id: ", type(id),
+#         "\nAx12.AX_GOAL_LENGTH: ", type(Ax12.AX_GOAL_LENGTH),
+#         "\nAx12.AX_WRITE_DATA: ", type(Ax12.AX_WRITE_DATA),
+#         "\nAx12.AX_GOAL_POSITION_L: ", type(Ax12.AX_GOAL_POSITION_L),
+#         "\np[0]: ", type(p[0]),
+#         "\np[1]: ", type(p[1]))
+        checksum = (~(id + Ax12.AX_GOAL_LENGTH + Ax12.AX_WRITE_DATA + Ax12.AX_GOAL_POSITION_L + p[0] + p[1])) & 0xff
         outData = bytes([Ax12.AX_START])
         outData += bytes([Ax12.AX_START])
         outData += bytes([id])

@@ -1,17 +1,19 @@
 import cv2 as cv
 from cv2 import WINDOW_NORMAL
 import numpy as np
-
+import Types.TrackMode as TrackMode
+import Types.ObjectPosition as ObjectPosition
 
 
 class Tracker:
     def __init__(self):
         self.cap = cv.VideoCapture(0)
 
-    def GetPositionTrackingObject(self):
+
+    def GetPositionTrackingObject(self, rawFrame):
         # while True:
-        _, frame = self.cap.read()
-        #frame = rawFrame
+        #_, self.frame = self.cap.read()
+        frame = rawFrame
 
         width = 500
         height = 500
@@ -50,15 +52,15 @@ class Tracker:
                 #print("X:", cx, "Y:", cy)
             if cx > 450:
                 print("The object position was: Left")
-                #return
+                return
                 #return ObjectPosition.left
             if cx < 200:
                 print("The object position was: Right")
-                #return
+                return
                 #return ObjectPosition.right
             if cx < 450 and cx > 200:
                 print("The object position was: Middle")
-                #return
+                return
                 #return ObjectPosition.middle
 
                 # if cx>450:
