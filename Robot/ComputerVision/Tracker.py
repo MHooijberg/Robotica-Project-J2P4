@@ -9,6 +9,7 @@ class Tracker:
     def __init__(self):
         self.cap = cv.VideoCapture(0)
 
+
     def GetPositionTrackingObject(self, rawFrame):
         # while True:
         #_, self.frame = self.cap.read()
@@ -69,8 +70,8 @@ class Tracker:
                 # if cx<450 and cx>200:
                 #     print("middle")
 
-        # cv.namedWindow('frame', WINDOW_NORMAL)
-        # cv.resizeWindow('frame', (width, height))
+        #cv.namedWindow('frame', WINDOW_NORMAL)
+        #cv.resizeWindow('frame', (width, height))
 
         # cv.imshow('frame', frame)
         # cv.imshow('mask', mask)
