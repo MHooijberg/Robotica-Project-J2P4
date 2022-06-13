@@ -61,6 +61,8 @@ class WeightSensorDriver:
         #val_B = hx.get_weight_B(5)
         # print "A: %s  B: %s" % ( val_A, val_B )
 
+
+# TODO: Volgens de code review kan dit waarschijnlijk weg.
         self.hx.power_down()
         self.hx.power_up()
         return val

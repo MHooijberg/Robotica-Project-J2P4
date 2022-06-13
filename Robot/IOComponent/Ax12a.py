@@ -138,7 +138,7 @@ class Ax12:
     port = None
     gpioSet = False
 
-    def __init__(self, baud_rate=1000000):
+    def __init__(self, directionPin, baud_rate=1000000,):
         print("__init__ was called of ax12_v3_modified.py")
         if(Ax12.port == None):
             Ax12.port = Serial(

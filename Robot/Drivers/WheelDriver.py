@@ -32,11 +32,12 @@ class WheelDriver:
             elif mode == SteeringMode.smooth or mode == SteeringMode.dynamic:
                 naturalHorizontalDirection = abs(direction[0])
 
-                if mode == SteeringMode.dynamic and naturalHorizontalDirection == 100:
+                if (mode == SteeringMode.dynamic and naturalHorizontalDirection == 100) or direction[1] == 0:
                     self.Wheels.Rotate(direction[0])
-                else:                    
+                else:
                     # Secondary wheel = X% of the speed of the primary wheel.
-                    secondaryWheelSpeed = (direction[1] / 100) * naturalHorizontalDirection
+                    secondaryWheelSpeed = (
+                        direction[1] / 100) * naturalHorizontalDirection
                     if direction[0] != 0:
                         # Determain if the left or right wheel should be the primary / secondary wheel.
                         leftSpeed = secondaryWheelSpeed if direction[0] < 0 else direction[1]

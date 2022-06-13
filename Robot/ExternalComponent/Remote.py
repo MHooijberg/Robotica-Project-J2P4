@@ -26,41 +26,6 @@ class Remote:
 #         self.PreviousValueXRight = 0
 #         self.PreviousValueYRight = 0
 
-#     async def ReceiveData(self, client):
-#         try:
-#             raw_data = await client.read_gatt_char(self.Uuid)
-#             data_array = format("".join(map(chr, raw_data))).split(",")
-#             print("Data received over bluetooth: ", str(data_array))
-#             return data_array
-#
-#         except Exception as error:
-#             #self.connected = False
-#             print("Couldn't Connect to the XJ-9 Remote.\nHere are the details master:\n", error)
-
-#         else:
-#             await self.StartConnection()
-#             return None
-
-     #   client = BleakClient(self.Address)
-     #   try:
-        #    await self.client:
-        #  raw_data = client.read_gatt_char(self.Uuid)
-        #  data_array = format("".join(map(chr, raw_data))).split(",")
-        # print("Data received over bluetooth: ", str(data_array))
-        #   return data_array
-        # except bleak.exc.BleakDBusError:
-
-    async def StartConnection(self):
-        self.client = BleakClient(self.Address)
-        try:
-            await client.connect()
-        except Exception as e:
-            print(e)
-            self.connected = False
-        else:
-            self.connected = True
-            print("Connection has been made KING")
-
     async def ReceiveData(self, client):
         try:
             raw_data = await client.read_gatt_char(self.Uuid)
@@ -71,21 +36,6 @@ class Remote:
         except Exception as error:
             print(
                 "Couldn't Connect to the XJ-9 Remote.\nHere are the details master:\n", error)
-
-     #   client = BleakClient(self.Address)
-     #   try:
-        #    await self.client:
-          #  raw_data = client.read_gatt_char(self.Uuid)
-          #  data_array = format("".join(map(chr, raw_data))).split(",")
-           # print("Data received over bluetooth: ", str(data_array))
-         #   return data_array
-
-        # except bleak.exc.BleakDBusError:
-        # except Exception as error:
-         #   print("Couldn't Connect to the XJ-9 Remote.\nHere are the details master:\n", error)
-
-        # finally:
-         #   await client.disconnect()
 
     # Steps:
     #   1. Het midden moet null zijn.
@@ -179,7 +129,3 @@ class Remote:
         self.PreviousValueX = transitionedX
         self.PreviousValueY = transitionedY
         return (transitionedX, transitionedY)
-
-    def SetJoystickDeadzone(self, innerDeadzone, outerDeadzone):
-        self.InnerDeadzone = innerDeadzone
-        self.OuterDeadzone = outerDeadzone

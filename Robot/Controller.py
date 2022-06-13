@@ -19,9 +19,7 @@ from Types.SteeringMode import SteeringMode
 # ---- Notes: ----
 # ================
 # TODO: Implement setting to set steering at max value, (turning 1 wheel or rotating around axis)
-# TODO: Implement a setting to set from when it needs to turn in the special way.
 # TODO: Implement a start and stop animation in the DefaultPosition.
-# TODO: Discuss what would be better, intialize the libraries here with settings and give that as arguments to the drivers or give the settings to the drivers.
 # TODO: Fill up more pins, not all have been configured
 # TODO: Discuss if the robot should stop its action when the controller loses connection.
 # #
@@ -64,7 +62,6 @@ class Controller:
     SHOULD_ANIMATE_SHUTDOWN = False
     SHOULD_ANIMATE_START = True
 
-
     # ===============================
     # ------ Pin configuration ------
     # ===============================
@@ -79,7 +76,6 @@ class Controller:
     MAGNET_PIN = 22
     SHUTDOWN_SWITCH_PIN = 17
     DISPLAY_SERVO_SWITCH_PIN = 24
-    
 
     # ===============================
     # ---- Remote  configuration ----
@@ -147,7 +143,8 @@ class Controller:
                             if command_array[5] == "ON":
                                 joystickA = Controller.Remote.JoystickToPercentage(
                                     command_array[0], command_array[2], True)
-                                Controller.MotorDriver.Drive(joystickA, Controller.STEERING_MODE)
+                                Controller.MotorDriver.Drive(
+                                    joystickA, Controller.STEERING_MODE)
                             # Control Arm
                             elif command_array[6] == "ON":
                                 pass

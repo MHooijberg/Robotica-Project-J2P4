@@ -15,11 +15,9 @@ class Mdd3aDriver:
         self.pins.insert(2, m2aPin)
         self.pins.insert(3, m2bPin)
 
-        for x in self.pins:
-            GPIO.setup(x, GPIO.OUT)
-            self.pwmPins.insert(0, GPIO.PWM(x, 20000))
-
         for x in range(4):
+            GPIO.setup(self.pins[x], GPIO.OUT)
+            self.pwmPins.insert(self.pins[x], GPIO.PWM(self.pins[x], 20000))
             self.pwmPins[x].start(0)
 
     def Move(self, speedLeft, speedRight):
