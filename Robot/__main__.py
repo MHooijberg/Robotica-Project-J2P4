@@ -1,8 +1,8 @@
-import asyncio
-import cv2 as cv
-from ExternalComponent.Camera import Camera
-from ComputerVision.Tracker import Tracker
-from Controller import Controller
+# import asyncio
+# import cv2 as cv
+# from ExternalComponent.Camera import Camera
+# from ComputerVision.Tracker import Tracker
+# from Controller import Controller
 
 #tracker = Tracker()
 
@@ -22,3 +22,31 @@ from Controller import Controller
 # asyncio.ensure_future(function_2())
 # loop.run_forever()
 # loop.run_forever()
+
+
+import asyncio
+import time
+from tracemalloc import get_object_traceback
+from Tests import cameratest
+
+async def firstWorker():
+    while True:
+        await asyncio.sleep(1)
+        print("First Worker Executed")
+
+async def secondWorker():
+    while True:
+        await asyncio.sleep(1)
+        print("Second Worker Executed")
+
+
+loop = asyncio.get_event_loop()
+try:
+    asyncio.ensure_future(cameratest.VideoCaptureTest._run())
+    asyncio.ensure_future(secondWorker())
+    loop.run_forever()
+except KeyboardInterrupt:
+    pass
+finally:
+    print("Closing Loop")
+    loop.close()
