@@ -22,7 +22,8 @@ from Types.SteeringMode import SteeringMode
 # TODO: Implement a start and stop animation in the DefaultPosition.
 # TODO: Fill up more pins, not all have been configured
 # TODO: Discuss if the robot should stop its action when the controller loses connection.
-# #
+# TODO: Variables on alphabetical order. 
+#
 # Robot life cycle steps:
 #   1. Initialize Objects.
 #   2. Go to starting position:
@@ -55,16 +56,16 @@ from Types.SteeringMode import SteeringMode
 
 
 class Controller:
-    # ===============================
+    # =====================================
     # ---------- Settings -----------
-    # ===============================
+    # =====================================
     SHOULD_TURN_OFF = False
     SHOULD_ANIMATE_SHUTDOWN = False
     SHOULD_ANIMATE_START = True
 
-    # ===============================
+    # =====================================
     # ------ Pin configuration ------
-    # ===============================
+    # =====================================
     HCSR04_ECHO_PIN = 20
     HCSR04_TRIGGER_PIN = 16
     HX711_DATA_PIN = 5
@@ -77,9 +78,9 @@ class Controller:
     SHUTDOWN_SWITCH_PIN = 17
     DISPLAY_SERVO_SWITCH_PIN = 24
 
-    # ===============================
+    # =====================================
     # ---- Remote  configuration ----
-    # ===============================
+    # =====================================
     ADDRESS = "78:E3:6D:12:1B:C6"
     UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8"
     CENTER_X_LEFT = 1959
@@ -90,32 +91,37 @@ class Controller:
     INNER_DEADZONE = 7
     OUTER_DEADZONE = 100
 
-    # ===============================
-    # ----- Servo configuration -----
-    # ===============================
-    BASE_SERVO_ID = 69
-    LOWER_ARM_SERVO_ID = 70
-    UPPER_ARM_SERVO_ID = 71
-    HEAD_SERVO_ID = 72
+    # =====================================
+    # ----- Arm / Servo configuration -----
+    # =====================================
+    #ARM_STRUCTURE = [[69], [70, 71], [72]]
+    ARM_STRUCTURE = [[69, 70], [71], [72]]
+    CONVERSION_NUMBER = 0.29
+    DEFAULT_STABILISATION_AMOUNT = 180
+    FOLD_POSITION = [517, [60], 60]
+    MAX_POSITION_PER_ROTATION_REQUEST = 4 # 1.16°
+    WEIGH_POSITION = [517, [672], 51]
+    ZERO_POSITION = 150
 
-    # ===============================
+    # =====================================
     # ---- Driving configuration ----
-    # ===============================
+    # =====================================
     STEERING_MODE = SteeringMode.static
 
-    # ===============================
+    # =====================================
     # ----------- States ------------
-    # ===============================
+    # =====================================
     ARM_START_POSITION = ArmPosition.Folded
     WHEEL_START_ACTION = Action.Stop
     MAGNET_IS_ACTIVE = False
 
-    # ===============================
+    # =====================================
     # ------ Object  Instances ------
-    # ===============================
+    # =====================================
     ObjectTracker = Tracker()
-    Arm = ArmDriver(BASE_SERVO_ID, LOWER_ARM_SERVO_ID,
-                    UPPER_ARM_SERVO_ID, HEAD_SERVO_ID)
+    Arm = ArmDriver(ARM_STRUCTURE, CONVERSION_NUMBER,
+                    DEFAULT_STABILISATION_AMOUNT, ZERO_POSITION,
+                    FOLD_POSITION, WEIGH_POSITION)
     Remote = Remote(ADDRESS, UUID, CENTER_X_LEFT, CENTER_Y_LEFT,
                     CENTER_X_RIGHT, CENTER_Y_RIGHT, RANGE, INNER_DEADZONE, OUTER_DEADZONE)
     Screen = Screen()
@@ -142,12 +148,22 @@ class Controller:
                             # Drive
                             if command_array[5] == "ON":
                                 joystickA = Controller.Remote.JoystickToPercentage(
-                                    command_array[0], command_array[2], True)
+                                    command_array[0], command_array[1], True)
                                 Controller.MotorDriver.Drive(
                                     joystickA, Controller.STEERING_MODE)
                             # Control Arm
                             elif command_array[6] == "ON":
-                                pass
+                                joystickA = Controller.Remote.JoystickToPercentage(
+                                    command_array[0], command_array[1], True)
+                                joystickB = Controller.Remote.JoystickToPercentage(
+                                    command_array[2], command_array[3], False)
+                                # Man, I'm going to bed, everything is setup.
+                                # implement MAX_POSITION_PER_ROTATION_REQUEST
+                                # multiplied by the percentage of the axis.
+                                # JoystickA X = Base, Y = Arm
+                                # JoystickB Y = Head
+                                Controller.Arm.Rotate()
+                                
                             # Turn on and off the magnet.
                             if command_array[7] == "ON" and Controller.MAGNET_IS_ACTIVE is False:
                                 Controller.MAGNET_IS_ACTIVE = True
