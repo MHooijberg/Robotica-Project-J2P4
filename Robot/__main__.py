@@ -42,7 +42,7 @@ async def secondWorker():
 
 loop = asyncio.get_event_loop()
 try:
-    asyncio.ensure_future(cameratest.VideoCaptureTest._run())
+    asyncio.ensure_future(cameratest.VideoCaptureTest.tracking())
     asyncio.ensure_future(secondWorker())
     loop.run_forever()
 except KeyboardInterrupt:
