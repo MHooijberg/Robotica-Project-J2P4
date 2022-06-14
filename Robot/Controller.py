@@ -21,7 +21,7 @@ from Types.SteeringMode import SteeringMode
 # TODO: Implement a start and stop animation in the DefaultPosition.
 # TODO: Fill up more pins, not all have been configured
 # TODO: Discuss if the robot should stop its action when the controller loses connection.
-# TODO: Variables on alphabetical order. 
+# TODO: Variables on alphabetical order.
 #
 # Robot life cycle steps:
 #   1. Initialize Objects.
@@ -69,10 +69,10 @@ class Controller:
     HCSR04_TRIGGER_PIN = 16
     HX711_DATA_PIN = 5
     HX711_CLOCK_PIN = 5
-    M1A_PIN = 18
-    M1B_PIN = 12
-    M2A_PIN = 13
-    M2B_PIN = 19
+    M1A_PIN = 19
+    M1B_PIN = 13
+    M2A_PIN = 12
+    M2B_PIN = 18
     MAGNET_PIN = 22
     SHUTDOWN_SWITCH_PIN = 17
     DISPLAY_SERVO_SWITCH_PIN = 24
@@ -98,7 +98,7 @@ class Controller:
     CONVERSION_NUMBER = 0.29
     DEFAULT_STABILISATION_AMOUNT = 180
     FOLD_POSITION = [517, [60], 60]
-    MAX_POSITION_PER_ROTATION_REQUEST = 4 # 1.16°
+    MAX_POSITION_PER_ROTATION_REQUEST = 4  # 1.16°
     WEIGH_POSITION = [517, [672], 51]
     ZERO_POSITION = 150
 
@@ -162,7 +162,7 @@ class Controller:
                                 # JoystickA X = Base, Y = Arm
                                 # JoystickB Y = Head
                                 Controller.Arm.Rotate()
-                                
+
                             # Turn on and off the magnet.
                             if command_array[7] == "ON" and Controller.MAGNET_IS_ACTIVE is False:
                                 Controller.MAGNET_IS_ACTIVE = True
@@ -193,7 +193,7 @@ class Controller:
             # If any exception is thrown or when the robot should turn off go to default position.
             finally:
                 pass
-                #Controller.Default_Position()
+                # Controller.Default_Position()
 
     @staticmethod
     def DefaultPosition():
