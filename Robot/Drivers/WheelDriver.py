@@ -19,7 +19,7 @@ class WheelDriver:
             self.Wheels.Brake()
         else:
             # Static: Just drive or turn, not both.
-            if mode == SteeringMode.static:
+            if mode == SteeringMode.Static:
                 strengthX = abs(direction[0])
                 strengthY = abs(direction[1])
                 if strengthY >= strengthX:
@@ -29,10 +29,10 @@ class WheelDriver:
 
             # Dynamic: Drive, turn and rotatate around center axis at 100%.
             # Smooth: Drive and turn at the same time, but can't rotate.
-            elif mode == SteeringMode.smooth or mode == SteeringMode.dynamic:
+            elif mode == SteeringMode.Smooth or mode == SteeringMode.Dynamic:
                 naturalHorizontalDirection = abs(direction[0])
 
-                if (mode == SteeringMode.dynamic and naturalHorizontalDirection == 100) or direction[1] == 0:
+                if (mode == SteeringMode.Dynamic and naturalHorizontalDirection == 100) or direction[1] == 0:
                     self.Wheels.Rotate(int(direction[0]))
                 else:
                     # Secondary wheel = X% of the speed of the primary wheel.

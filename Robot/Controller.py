@@ -6,6 +6,7 @@ from bleak import BleakClient
 from ComputerVision.Tracker import Tracker
 from Drivers.ArmDriver import ArmDriver
 from Drivers.WheelDriver import WheelDriver
+from ExternalComponent.Camera import Camera
 from ExternalComponent.Remote import Remote
 from ExternalComponent.Screen import Screen
 from IOComponent.Hcsr04 import Hcsr04
@@ -70,10 +71,10 @@ class Controller:
     HCSR04_TRIGGER_PIN = 16
     HX711_DATA_PIN = 5
     HX711_CLOCK_PIN = 5
-    M1A_PIN = 19
-    M1B_PIN = 13
-    M2A_PIN = 12
-    M2B_PIN = 18
+    M1A_PIN = 12
+    M1B_PIN = 18
+    M2A_PIN = 19
+    M2B_PIN = 13
     MAGNET_PIN = 22
     SHUTDOWN_SWITCH_PIN = 17
     DISPLAY_SERVO_SWITCH_PIN = 24
@@ -106,7 +107,7 @@ class Controller:
     # =====================================
     # ---- Driving configuration ----
     # =====================================
-    STEERING_MODE = SteeringMode.dynamic
+    STEERING_MODE = SteeringMode.Dynamic
 
     # =====================================
     # ----------- States ------------
@@ -122,14 +123,16 @@ class Controller:
     Arm = ArmDriver(ARM_STRUCTURE, CONVERSION_NUMBER,
                     DEFAULT_STABILISATION_AMOUNT, ZERO_POSITION,
                     FOLD_POSITION, WEIGH_POSITION)
+    Camera = Camera()
     Remote = Remote(ADDRESS, UUID, CENTER_X_LEFT, CENTER_Y_LEFT,
                     CENTER_X_RIGHT, CENTER_Y_RIGHT, RANGE, INNER_DEADZONE, OUTER_DEADZONE)
     Screen = Screen()
-    #Magnet = Magnet(MAGNET_PIN)
+    Magnet = Magnet(MAGNET_PIN)
     MotorDriver = WheelDriver(M1A_PIN, M1B_PIN, M2A_PIN, M2B_PIN)
 
     @staticmethod
     async def Update_Loop():
+        Controller.Camera.start()
         Controller.DefaultPosition()
         while Controller.SHOULD_TURN_OFF is False:
             # Try to connect with the controller. If it succeeds, perform handle the commands.
@@ -187,6 +190,7 @@ class Controller:
 
                         # Handle the autonomous control menu.
                         elif command_array[4] == "Autonomous":
+                            frame = Controller.Camera.read()
                             if command_array[5] == "ON":
                                 pass
                             elif command_array[6] == "ON":
