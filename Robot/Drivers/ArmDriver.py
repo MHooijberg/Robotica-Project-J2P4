@@ -57,19 +57,18 @@ class ArmDriver:
 
 
     def MoveTo(self, armPosition):
-        match armPosition:
-            case ArmPosition.Zero:
-                position = self.ZeroPostion* self.ConversionNumber
-                for x in self.BaseIds:
-                    self.ServoLibrary.move(x, position)
-                for x in self.ArmIds:
-                    self.ServoLibrary.move(x, position)
-                for x in self.HeadIds:
-                    self.ServoLibrary.move(x, position)
-            case ArmPosition.Folded:
-                self.MoveTo(self.FoldPosition)
-            case ArmPosition.Weigh:
-                self.MoveTo(self.FoldPosition)
+        if armPosition == ArmPosition.Zero:
+            position = self.ZeroPostion* self.ConversionNumber
+            for x in self.BaseIds:
+                self.ServoLibrary.move(x, position)
+            for x in self.ArmIds:
+                self.ServoLibrary.move(x, position)
+            for x in self.HeadIds:
+                self.ServoLibrary.move(x, position)
+        elif armPosition == ArmPosition.Folded:
+            self.MoveTo(self.FoldPosition)
+        elif armPosition == ArmPosition.Weigh:
+            self.MoveTo(self.FoldPosition)
 
     def StabilizeHead(self):
         armPositions = []

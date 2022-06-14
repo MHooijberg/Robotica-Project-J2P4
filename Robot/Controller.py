@@ -1,6 +1,5 @@
 # ==== General Imports: ====
 import asyncio
-from msilib.schema import Control
 from bleak import BleakClient
 
 # ==== Package Imports ====
@@ -106,7 +105,7 @@ class Controller:
     # =====================================
     # ---- Driving configuration ----
     # =====================================
-    STEERING_MODE = SteeringMode.static
+    STEERING_MODE = SteeringMode.dynamic
 
     # =====================================
     # ----------- States ------------
@@ -193,7 +192,8 @@ class Controller:
                 continue
             # If any exception is thrown or when the robot should turn off go to default position.
             finally:
-                Controller.Default_Position()
+                pass
+                #Controller.Default_Position()
 
     @staticmethod
     def DefaultPosition():

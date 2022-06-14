@@ -5,7 +5,8 @@ from time import sleep
 
 class Mdd3aDriver:
     pins = []
-
+    pwmPins = []
+    
     def __init__(self, m1aPin, m1bPin, m2aPin, m2bPin):
         # TODO: Can we setup the GPIO in Controller.py?
         GPIO.setmode(GPIO.BCM)

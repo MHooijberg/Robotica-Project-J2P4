@@ -1,4 +1,4 @@
-from ..Types.EmotionState import EmotionState
+from Types.EmotionState import EmotionState
 import serial
 
 
@@ -20,14 +20,13 @@ class Screen:
         ser.write(data)
 
     def DisplayEmotion(self, emotion):
-        match emotion:
-            case EmotionState.Angry:
+        if emotion == EmotionState.Angry:
                 self.__SendToDisplay("page angry")
-            case EmotionState.Happy:
+        elif emotion == EmotionState.Happy:
                 self.__SendToDisplay("page happy")
-            case EmotionState.Sad:
+        elif emotion == EmotionState.Sad:
                 self.__SendToDisplay("page sad")
-            case EmotionState.Neutral:
+        elif emotion == EmotionState.Neutral:
                 self.__SendToDisplay("page neutral")
-            case EmotionState.Tired:
+        elif emotion == EmotionState.Tired:
                 self.__SendToDisplay("page tired")

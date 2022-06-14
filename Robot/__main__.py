@@ -1,7 +1,8 @@
 from Controller import Controller
-Controller.UpdateLoop()
+import asyncio
 
-# import asyncio
+asyncio.run(Controller.Update_Loop())
+
 # import cv2 as cv
 # from ExternalComponent.Camera import Camera
 # from ComputerVision.Tracker import Tracker
