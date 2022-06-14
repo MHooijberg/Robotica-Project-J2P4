@@ -14,9 +14,8 @@ class WeightSensor:
         #recommended: "pinA" = 5 and "pinB" = 6
         hx = HX711(pinA, pinB)
 
-        
-    def getWeight(self):
-        # I've found out that, for some reason, the order of the bytes is not always the same between versions of python, numpy and the hx711 itself.
+    def tare(self):
+         # I've found out that, for some reason, the order of the bytes is not always the same between versions of python, numpy and the hx711 itself.
         # Still need to figure out why does it change.
         # If you're experiencing super random values, change these values to MSB or LSB until to get more stable values.
         # There is some code below to debug and log the order of the bits and the bytes.
@@ -49,6 +48,10 @@ class WeightSensor:
         # np_arr8_string = hx.get_np_arr8_string()
         # binary_string = hx.get_binary_string()
         # print binary_string + " " + np_arr8_string
+
+
+    def getWeight(self):
+       
 
         # Prints the weight. Comment if you're debbuging the MSB and LSB issue.
         val = self.hx.get_weight(5)
