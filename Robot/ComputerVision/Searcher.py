@@ -9,7 +9,7 @@ import math
 # ================
 #
 #
-# TODO: I haven't been able to let 'findTarget' return 'Forward' maybe the range needs to be extended
+# TODO: determening the direction, using 'findTarget' is not 100% reliable
 # TODO: this class will take in account that the camera uses a resolution which shows the ground, and the walls
 #       this is why it calculates the average: because the walls don't need to be scanned for objects
 #       however a resolution may be given on which only the ground will be seen (for example for optimalisation purposes)
