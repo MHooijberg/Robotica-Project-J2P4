@@ -14,7 +14,7 @@ class WeightSensor:
         #recommended: "pinA" = 5 and "pinB" = 6
         hx = HX711(pinA, pinB)
 
-    def tare(self):
+    def calibrate(self):
          # I've found out that, for some reason, the order of the bytes is not always the same between versions of python, numpy and the hx711 itself.
         # Still need to figure out why does it change.
         # If you're experiencing super random values, change these values to MSB or LSB until to get more stable values.
