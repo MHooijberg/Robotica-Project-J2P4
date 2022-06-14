@@ -2,7 +2,7 @@ import threading
 import cv2
 
 
-class VideoCaptureThreading:
+class Camera:
     def __init__(self, src=0, width=640, height=480):
         self.src = src
         self.cap = cv2.VideoCapture(self.src)
@@ -35,7 +35,9 @@ class VideoCaptureThreading:
         with self.read_lock:
             frame = self.frame.copy()
             grabbed = self.grabbed
-        return grabbed, frame
+            #grabbed = self.grabbed
+        # return grabbed, frame
+        return frame
 
     def stop(self):
         self.started = False

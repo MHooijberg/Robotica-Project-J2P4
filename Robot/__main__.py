@@ -1,4 +1,8 @@
-# import asyncio
+from Controller import Controller
+import asyncio
+
+asyncio.run(Controller.Update_Loop())
+
 # import cv2 as cv
 # from ExternalComponent.Camera import Camera
 # from ComputerVision.Tracker import Tracker
@@ -15,8 +19,8 @@
 #             frame = Camera.GetFrame(71)
 #             print("Getting Object Position:")
 #             tracker.GetPositionTrackingObject(frame)
-#         #print("\n HELLO WORLD \n") 
-# 
+#         #print("\n HELLO WORLD \n")
+#
 # loop = asyncio.get_event_loop()
 # asyncio.ensure_future(Camera.StreamLoop_Async())
 # asyncio.ensure_future(function_2())
@@ -24,29 +28,29 @@
 # loop.run_forever()
 
 
-import asyncio
-import time
-from tracemalloc import get_object_traceback
-from Tests import cameratest
+# import asyncio
+# import time
+# from tracemalloc import get_object_traceback
+# from Tests import cameratest
 
-async def firstWorker():
-    while True:
-        await asyncio.sleep(1)
-        print("First Worker Executed")
+# async def firstWorker():
+#     while True:
+#         await asyncio.sleep(1)
+#         print("First Worker Executed")
 
-async def secondWorker():
-    while True:
-        await asyncio.sleep(1)
-        print("Second Worker Executed")
+# async def secondWorker():
+#     while True:
+#         await asyncio.sleep(1)
+#         print("Second Worker Executed")
 
 
-loop = asyncio.get_event_loop()
-try:
-    asyncio.ensure_future(cameratest.VideoCaptureTest._run())
-    asyncio.ensure_future(secondWorker())
-    loop.run_forever()
-except KeyboardInterrupt:
-    pass
-finally:
-    print("Closing Loop")
-    loop.close()
+# loop = asyncio.get_event_loop()
+# try:
+#     asyncio.ensure_future(cameratest.VideoCaptureTest._run())
+#     asyncio.ensure_future(secondWorker())
+#     loop.run_forever()
+# except KeyboardInterrupt:
+#     pass
+# finally:
+#     print("Closing Loop")
+#     loop.close()

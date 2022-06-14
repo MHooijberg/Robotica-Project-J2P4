@@ -1,62 +1,87 @@
+# ==== General Imports: ====
 import asyncio
-from time import sleep
-#import for dance
-import librosa 
-import IPython.display as ipd 
-import time
 from bleak import BleakClient
-# TODO: Fix import issues
+
+# ==== Package Imports ====
 from ComputerVision.Tracker import Tracker
 from Drivers.ArmDriver import ArmDriver
-#from .ExternalComponent import Camera
+from Drivers.WheelDriver import WheelDriver
+from ExternalComponent.Camera import Camera
 from ExternalComponent.Remote import Remote
 from ExternalComponent.Screen import Screen
 from IOComponent.Hcsr04 import Hcsr04
 from IOComponent.Magnet import Magnet
-from IOComponent.Mdd3aDriver import Mdd3aDriver
-#from .Socket import BluetoothSocket
-# TODO: Don't import all form a folder, this is bad practice.
-# import Types import *
+from Types.Action import Action
+from Types.ArmPosition import ArmPosition
 from Types.SteeringMode import SteeringMode
+from Types.ArmPart import ArmPart
+
 # ================
 # ---- Notes: ----
 # ================
-# Steps to make the controller:
-#   1. Initialise all the necessary components.
-#   2. Setup al the default values and states.
-#   3.
+# TODO: Implement setting to set steering at max value, (turning 1 wheel or rotating around axis)
+# TODO: Implement a start and stop animation in the DefaultPosition.
+# TODO: Fill up more pins, not all have been configured
+# TODO: Discuss if the robot should stop its action when the controller loses connection.
+# TODO: Variables on alphabetical order.
 #
-#
-# Ideas to make the function work:
-#   - There needs to be different states so that we know what's going on.
-#   - Do we need to have a MotorAction type to save the current action?
-#   - What does the robot need to do after booting up?
-#   -
-#
-# #
-
-# TODO: I'd like to mention that self and Contoller.variable are used interchangebly.
-#       We need to do research on if this might be a bad practise.
+# Robot life cycle steps:
+#   1. Initialize Objects.
+#   2. Go to starting position:
+#        - Wheels on brake
+#        - Arm in folded position
+#        - Make sure all components are in their default state.
+#        - Initialize GPIO here
+#   3. Go into update cycle:
+#        - Connect to bluetooth controller
+#        - Read instructions from controller.
+#        - Execute instruction / command:
+#           - Manually:
+#               - Drive
+#               - Arm
+#               - Magnet
+#           - Autonomous:
+#               - BlueBlock
+#               - BlackLine
+#               - Shavings
+#           - Dance:
+#               - LineDance
+#               - The other dance :)
+#        -
+#   4. Shutdown:
+#        - Good bye message.
+#        - Return to default position.
+#        - Return GPIO to their default states.
+#        - Clean up serial and GPIO channel.
+#        - Shutdown system.
 
 
 class Controller:
-    # ===============================
+    # =====================================
     # ---------- Settings -----------
-    # ===============================
-    ShouldTurnnOff = False
+    # =====================================
+    SHOULD_TURN_OFF = False
+    SHOULD_ANIMATE_SHUTDOWN = False
+    SHOULD_ANIMATE_START = True
 
-    # ===============================
+    # =====================================
     # ------ Pin configuration ------
-    # ===============================
+    # =====================================
+    HCSR04_ECHO_PIN = 20
+    HCSR04_TRIGGER_PIN = 16
+    HX711_DATA_PIN = 5
+    HX711_CLOCK_PIN = 5
     M1A_PIN = 12
     M1B_PIN = 18
-    M2A_PIN = 13
-    M2B_PIN = 19
-    # MAGNET_PIN =
+    M2A_PIN = 19
+    M2B_PIN = 13
+    MAGNET_PIN = 22
+    SHUTDOWN_SWITCH_PIN = 17
+    DISPLAY_SERVO_SWITCH_PIN = 24
 
-    # ===============================
+    # =====================================
     # ---- Remote  configuration ----
-    # ===============================
+    # =====================================
     ADDRESS = "78:E3:6D:12:1B:C6"
     UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8"
     CENTER_X_LEFT = 1959
@@ -64,150 +89,130 @@ class Controller:
     CENTER_X_RIGHT = 1755
     CENTER_Y_RIGHT = 1782
     RANGE = 2047
-    INNER_DEADZONE = 9.75
+    INNER_DEADZONE = 7
     OUTER_DEADZONE = 100
 
-    # ===============================
-    # ----- Servo configuration -----
-    # ===============================
-    BASE_SERVO_ID = 69
-    LOWER_ARM_SERVO_ID = 70
-    UPPER_ARM_SERVO_ID = 71
-    HEAD_SERVO_ID = 72
+    # =====================================
+    # ----- Arm / Servo configuration -----
+    # =====================================
+    #ARM_STRUCTURE = [[69], [70, 71], [72]]
+    ARM_STRUCTURE = [[69], [70, 71], [72]]
+    CONVERSION_NUMBER = 0.29
+    DEFAULT_STABILISATION_AMOUNT = 180
+    FOLD_POSITION = [517, [60], 60]
+    MAX_POSITION_PER_ROTATION_REQUEST = 4  # 1.16°
+    WEIGH_POSITION = [517, [672], 51]
+    ZERO_POSITION = 150
 
-    # ===============================
+    # =====================================
     # ---- Driving configuration ----
-    # ===============================
-    # TODO: Implement setting to set steering at max value, (turning 1 wheel or rotating around axis)
-    # TODO: Implement a setting to set from when it needs to turn in the special way.
-    # TODO: Implement safety for max speed?
-    STEERING_MODE = SteeringMode.static
+    # =====================================
+    STEERING_MODE = SteeringMode.Dynamic
 
-    # TODO: Make all IOComponents configureable with pins
-    # TODO: sort by the order of imports :) i like neat code.
+    # =====================================
+    # ----------- States ------------
+    # =====================================
+    ARM_START_POSITION = ArmPosition.Folded
+    WHEEL_START_ACTION = Action.Stop
+    MAGNET_IS_ACTIVE = False
+
+    # =====================================
+    # ------ Object  Instances ------
+    # =====================================
     ObjectTracker = Tracker()
-    Arm = ArmDriver(63, 23, 32, 69)
-    Remote = Remote(ADDRESS, UUID, CENTER_X_LEFT, CENTER_Y_LEFT, CENTER_X_RIGHT, CENTER_Y_RIGHT, RANGE, INNER_DEADZONE, OUTER_DEADZONE)
+    Arm = ArmDriver(ARM_STRUCTURE, CONVERSION_NUMBER,
+                    DEFAULT_STABILISATION_AMOUNT, ZERO_POSITION,
+                    FOLD_POSITION, WEIGH_POSITION)
+    Camera = Camera()
+    Remote = Remote(ADDRESS, UUID, CENTER_X_LEFT, CENTER_Y_LEFT,
+                    CENTER_X_RIGHT, CENTER_Y_RIGHT, RANGE, INNER_DEADZONE, OUTER_DEADZONE)
     Screen = Screen()
-    #Magnet = Magnet(MAGNET_PIN)
-    MotorDriver = Mdd3aDriver(M1A_PIN, M1B_PIN, M2A_PIN, M2B_PIN)
+    Magnet = Magnet(MAGNET_PIN)
+    MotorDriver = WheelDriver(M1A_PIN, M1B_PIN, M2A_PIN, M2B_PIN)
 
-    def __init__(self):
-        pass
-
-    # Update Loop Cycle:
-    #   1. Retrieve Settings from remote.
-    #   2. Change State based on the remote settings.
-    #   3. Start / Keep doing action if State Changed.
-    #   4. Repeat.
-    # TODO: Discuss with group about being able to controll the arm while driving.
-
-    # TODO: States should be included, a state for each action like current magnet action etc.
-    #      Will save some resources because only when a state is changed something will happen.
     @staticmethod
     async def Update_Loop():
-        while True:
+        Controller.Camera.start()
+        Controller.DefaultPosition()
+        while Controller.SHOULD_TURN_OFF is False:
+            # Try to connect with the controller. If it succeeds, perform handle the commands.
             try:
                 async with BleakClient(Controller.ADDRESS, timeout=0.5) as client:
-                    while Controller.ShouldTurnnOff is False:
-                        #command_array = asyncio.run(Controller.Remote.ReceiveData(client))
+                    # Keep reading instructions untill the robot is told to turn off.
+                    while Controller.SHOULD_TURN_OFF is False:
+                        # Read data from the remote.
                         command_array = await Controller.Remote.ReceiveData(client)
+                        # If we don't receive any data, terminate this iteration and try again.
                         if command_array is None:
-                            continue  
-                        elif command_array[4] == "Drive":
-                            if (command_array[5] == "ON"):
+                            continue
+
+                        # Handle the manual control menu.
+                        elif command_array[4] == "Manually":
+                            # Drive
+                            if command_array[5] == "ON":
                                 joystickA = Controller.Remote.JoystickToPercentage(
-                                command_array[0], command_array[2], True)
-                                print("Joystick output: x=" +
-                                str(joystickA[0]) + " y=" + str(joystickA[1]))
-                    # TODO: Joystick B Is not needed at the moment.
-                    #joystickB = Controller.Remote.JoystickToPercentage(command_array[1], command_array[3])
-                                Controller.Drive(joystickA)
-                                    
-                            elif (command_array[6] == "ON"):
-                                pass
-                        elif command_array[4] == "Robot Arm":
-                            if (command_array[5] == "ON"):
+                                    command_array[0], command_array[1], True)
+                                Controller.MotorDriver.Drive(
+                                    joystickA, Controller.STEERING_MODE)
+                            # Control Arm
+                            elif command_array[6] == "ON":
+                                joystickA = Controller.Remote.JoystickToPercentage(
+                                    command_array[0], command_array[1], True)
+                                joystickB = Controller.Remote.JoystickToPercentage(
+                                    command_array[2], command_array[3], False)
+
+                                # Man, I'm going to bed, everything is setup.
+                                # implement MAX_POSITION_PER_ROTATION_REQUEST
+                                # multiplied by the percentage of the axis.
+                                # JoystickA X = Base, Y = Arm
+                                # JoystickB Y = Head
+                                rotationFactor = Controller.MAX_POSITION_PER_ROTATION_REQUEST / 100
+                                baseRotation = int(
+                                    rotationFactor * joystickA[0])
+                                armRotation = int(
+                                    rotationFactor * joystickA[1])
+                                headRotation = int(
+                                    rotationFactor * joystickB[1])
+                                Controller.Arm.Rotate(
+                                    ArmPart.Base, baseRotation, False)
+                                Controller.Arm.Rotate(
+                                    ArmPart.Arm, armRotation, False)
+                                Controller.Arm.Rotate(
+                                    ArmPart.Head, headRotation, False)
+
+                            # Turn on and off the magnet.
+                            if command_array[7] == "ON" and Controller.MAGNET_IS_ACTIVE is False:
+                                Controller.MAGNET_IS_ACTIVE = True
                                 Controller.Magnet.turnON()
-                            else:
+                            elif command_array[7] == "OFF" and Controller.MAGNET_IS_ACTIVE is True:
+                                Controller.MAGNET_IS_ACTIVE = False
                                 Controller.Magnet.turnOff()
-                # TODO: command_array[6] is used for the gripper which we do not have.
+
+                        # Handle the autonomous control menu.
+                        elif command_array[4] == "Autonomous":
+                            frame = Controller.Camera.read()
+                            if command_array[5] == "ON":
+                                pass
+                            elif command_array[6] == "ON":
+                                pass
+                            elif command_array[7] == "ON":
+                                pass
+
+                        # Handle the dance menu.
                         elif command_array[4] == "Dance":
-                            pass
+                            if command_array[5] == "ON":
+                                pass
+                            elif command_array[6] == "ON":
+                                pass
+            # If it doesn't connect or the connection is dropped, then print error and try again.
             except Exception as e:
                 print(e)
                 continue
+            # If any exception is thrown or when the robot should turn off go to default position.
+            finally:
+                pass
+                # Controller.Default_Position()
 
-    # TODO: Find a better position for this code.
-    # TODO: I need to test the output of the controller to see if x can be 100 without y being 100
     @staticmethod
-    def Drive(direction):
-        if Controller.STEERING_MODE == SteeringMode.static:
-            if direction[0] != 0 or direction[1] != 0:
-                strengthX = abs(direction[0])
-                strengthY = abs(direction[1])
-                if strengthY > strengthX:
-                    if direction[1] > 0:
-                        Controller.MotorDriver.Forward(strengthY, strengthY)
-                    elif direction[1] < 0:
-                        Controller.MotorDriver.Backward(strengthY, strengthY)
-                else:
-                    if direction[0] > 0:
-                        Controller.MotorDriver.RotateLeft(strengthX)
-                    elif direction[0] < 0:
-                        Controller.MotorDriver.RotateRight(strengthX)
-            elif direction[0] == 0 and direction[1] == 0:
-                Controller.MotorDriver.stop()
-                
-                    
-
-        elif Controller.STEERING_MODE == SteeringMode.dynamic:
-                pass
-        elif Controller.STEERING_MODE == SteeringMode.smooth:
-                pass
-
-    def Dance(self):
-        x, sr = librosa.load('/dansje.wav') 
-        ipd.Audio(x, rate=sr)
-        tempo, beat = librosa.beat.beat_track(x, sr=sr, start_bpm=103, units='time')
-        print(len(beat))
-        print(beat[1])
-        #ADD the motor functions and arm functions
-        self.MotorDriver.Forward(0,0,0)
-        time.sleep(beat[3])
-        self.MotorDriver.RotateLeft(50)
-        self.ArmDriver.MoveTo(0, 0, 0)
-        self.ArmDriver.MoveTo(0, 20, 20)
-        time.sleep(beat[15]-beat[3])
-        self.MotorDriver.Forward(30, 10)
-        time.sleep(beat[30]-beat[15])
-        self.MotorDriver.RotateRight(50)
-        time.sleep(beat[45]-beat[30])
-        self.MotorDriver.Forward(30, 10)
-        time.sleep(beat[60]-beat[45])
-        self.MotorDriver.RotateRight(50)
-        time.sleep(beat[75]-beat[60])
-        self.MotorDriver.Forward(30, 10)
-        time.sleep(beat[90]-beat[75])
-        self.MotorDriver.RotateRight(50)
-        time.sleep(beat[105]-beat[90])
-        self.MotorDriver.Forward(30,10)
-        time.sleep(beat[120]-beat[105])
-        self.MotorDriver.RotateRight(50) 
-        time.sleep(beat[135]-beat[120])
-        self.MotorDriver.Forward(30, 10)
-        time.sleep(beat[150]-beat[135])
-        self.MotorDriver.RotateRight(50)
-        time.sleep(beat[165]-beat[150])
-        self.MotorDriver.Forward(30, 10)
-        time.sleep(beat[180]-beat[165])
-        self.MotorDriver.RotateRight(50)
-        time.sleep(beat[195]-beat[180])
-        self.MotorDriver.Backward(20, 20)
-        time.sleep(beat[203]-beat[190])
-        self.MotorDriver.Brake()
-        self.ArmDriver.MoveTo(0,0,0)
-
-
-    
-        
+    def DefaultPosition():
+        Controller.MotorDriver.Brake()
