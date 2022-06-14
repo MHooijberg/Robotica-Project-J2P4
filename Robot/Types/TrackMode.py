@@ -2,6 +2,6 @@ from enum import Enum
 
 
 class TrackMode(Enum):
-    none = 0
-    BlueBlock = 1
-    Autonomous = 2
+    BlueBlock = 0
+    BlackLine = 1
+    Shaving = 2
