@@ -43,7 +43,7 @@ class ArmDriver:
         pass
 
     # Convert from degrees to position
-    def MoveTo(self, position, shouldStabalizeHead = True):
+    def MoveTo(self, position, shouldStabalizeHead=True):
         for id in self.BaseIds:
             self.ServoLibrary.move(id, int(position[0]))
         for x in range(len(position[1])):
@@ -55,10 +55,9 @@ class ArmDriver:
             for id in self.HeadIds:
                 self.ServoLibrary.move(id, int(position[2]))
 
-
     def MoveTo(self, armPosition):
         if armPosition == ArmPosition.Zero:
-            position = self.ZeroPostion* self.ConversionNumber
+            position = self.ZeroPostion * self.ConversionNumber
             for x in self.BaseIds:
                 self.ServoLibrary.move(x, position)
             for x in self.ArmIds:
@@ -96,22 +95,24 @@ class ArmDriver:
         #     relativeHeadDeg), " | Needed Rotation ", str(neededRotation), " | Absolute End Rotation ", str(neededRotation + 150), " | Absolute End Position ", str(headPos))
         # print("==== End Of Servo Information ====\n")
 
-    def Rotate(self, armPart, amount, inDegrees = False):
-        currentPosition = []
+    def Rotate(self, armPart, amount, inDegrees=False):
+        if (amount != 0):
+            currentPosition = []
 
-        if inDegrees:
-            amount /= self.ConversionNumber
-        
-        if armPart == ArmPart.Base:
-            idArray = self.BaseIds
-        elif armPart == ArmPart.Arm:
-            idArray = self.ArmIds
-        elif armPart == ArmPart.Head:
-            idArray = self.HeadIds
+            if inDegrees:
+                amount /= self.ConversionNumber
 
-        for id in idArray:
-            currentPosition.append(self.ServoLibrary.readPosition(id))
-        
-        for i in range(len(currentPosition)):
-            moveAmount = amount if type(amount) is int else amount[i]
-            self.ServoLibrary.move(idArray[i], currentPosition[i] + moveAmount)
+            if armPart == ArmPart.Base:
+                idArray = self.BaseIds
+            elif armPart == ArmPart.Arm:
+                idArray = self.ArmIds
+            elif armPart == ArmPart.Head:
+                idArray = self.HeadIds
+
+            for id in idArray:
+                currentPosition.append(self.ServoLibrary.readPosition(id))
+
+            for i in range(len(currentPosition)):
+                moveAmount = amount if type(amount) is int else amount[i]
+                self.ServoLibrary.move(
+                    idArray[i], currentPosition[i] + moveAmount)

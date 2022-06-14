@@ -13,6 +13,7 @@ from IOComponent.Magnet import Magnet
 from Types.Action import Action
 from Types.ArmPosition import ArmPosition
 from Types.SteeringMode import SteeringMode
+from Types.ArmPart import ArmPart
 
 # ================
 # ---- Notes: ----
@@ -94,7 +95,7 @@ class Controller:
     # ----- Arm / Servo configuration -----
     # =====================================
     #ARM_STRUCTURE = [[69], [70, 71], [72]]
-    ARM_STRUCTURE = [[69, 70], [71], [72]]
+    ARM_STRUCTURE = [[69], [70, 71], [72]]
     CONVERSION_NUMBER = 0.29
     DEFAULT_STABILISATION_AMOUNT = 180
     FOLD_POSITION = [517, [60], 60]
@@ -156,12 +157,25 @@ class Controller:
                                     command_array[0], command_array[1], True)
                                 joystickB = Controller.Remote.JoystickToPercentage(
                                     command_array[2], command_array[3], False)
+
                                 # Man, I'm going to bed, everything is setup.
                                 # implement MAX_POSITION_PER_ROTATION_REQUEST
                                 # multiplied by the percentage of the axis.
                                 # JoystickA X = Base, Y = Arm
                                 # JoystickB Y = Head
-                                Controller.Arm.Rotate()
+                                rotationFactor = Controller.MAX_POSITION_PER_ROTATION_REQUEST / 100
+                                baseRotation = int(
+                                    rotationFactor * joystickA[0])
+                                armRotation = int(
+                                    rotationFactor * joystickA[1])
+                                headRotation = int(
+                                    rotationFactor * joystickB[1])
+                                Controller.Arm.Rotate(
+                                    ArmPart.Base, baseRotation, False)
+                                Controller.Arm.Rotate(
+                                    ArmPart.Arm, armRotation, False)
+                                Controller.Arm.Rotate(
+                                    ArmPart.Head, headRotation, False)
 
                             # Turn on and off the magnet.
                             if command_array[7] == "ON" and Controller.MAGNET_IS_ACTIVE is False:
