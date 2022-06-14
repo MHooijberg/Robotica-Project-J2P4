@@ -45,8 +45,8 @@ class Mdd3aDriver:
             self.pwmPins[3].ChangeDutyCycle(speed)
         elif speed < 0:
             self.pwmPins[0].ChangeDutyCycle(0)
-            self.pwmPins[1].ChangeDutyCycle(speed)
-            self.pwmPins[2].ChangeDutyCycle(speed)
+            self.pwmPins[1].ChangeDutyCycle(abs(speed))
+            self.pwmPins[2].ChangeDutyCycle(abs(speed))
             self.pwmPins[3].ChangeDutyCycle(0)
 
     def Brake(self):

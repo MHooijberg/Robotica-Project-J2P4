@@ -23,9 +23,9 @@ class WheelDriver:
                 strengthX = abs(direction[0])
                 strengthY = abs(direction[1])
                 if strengthY >= strengthX:
-                    self.Wheels.Move(direction[1], direction[1])
+                    self.Wheels.Move(int(direction[1]), int(direction[1]))
                 else:
-                    self.Wheels.Rotate(direction[0])
+                    self.Wheels.Rotate(int(direction[0]))
 
             # Dynamic: Drive, turn and rotatate around center axis at 100%.
             # Smooth: Drive and turn at the same time, but can't rotate.
@@ -33,7 +33,7 @@ class WheelDriver:
                 naturalHorizontalDirection = abs(direction[0])
 
                 if (mode == SteeringMode.dynamic and naturalHorizontalDirection == 100) or direction[1] == 0:
-                    self.Wheels.Rotate(direction[0])
+                    self.Wheels.Rotate(int(direction[0]))
                 else:
                     # Secondary wheel = X% of the speed of the primary wheel.
                     secondaryWheelSpeed = (
@@ -44,8 +44,9 @@ class WheelDriver:
                         rightSpeed = secondaryWheelSpeed if direction[0] > 0 else direction[1]
                     else:
                         # If no direction is given go forward equal to the power of the Y-direction.
-                        leftSpeed, rightSpeed = direction[1]
-                    self.Wheels.Move(leftSpeed, rightSpeed)
+                        leftSpeed = direction[1]
+                        rightSpeed = direction[1]
+                    self.Wheels.Move(int(leftSpeed), int(rightSpeed))
 
 #     def Dance(self):
 #         x, sr = librosa.load('/dansje.wav')
