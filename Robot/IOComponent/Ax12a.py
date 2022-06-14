@@ -129,16 +129,21 @@ class Ax12:
     TX_DELAY_TIME = 0.00002
 
     # direction constants
-    DIRECTION_PIN = 4
-    DIRECTION_TX = GPIO.HIGH
-    DIRECTION_RX = GPIO.LOW
-    DIRECTION_SWITCH_DELAY = 0.0001
+    DIRECTION_PIN = None
+    DIRECTION_TX = None
+    DIRECTION_RX = None
+    DIRECTION_SWITCH_DELAY = None
 
     # static variables
     port = None
     gpioSet = False
 
-    def __init__(self, baud_rate=1000000,):
+    def __init__(self, directionPin, directionTX, directionRX, directionSwitchDelay, baud_rate=1000000):
+        Ax12.DIRECTION_PIN = directionPin
+        Ax12.DIRECTION_TX = directionTX
+        Ax12.DIRECTION_RX = directionRX
+        Ax12.DIRECTION_SWITCH_DELAY = directionSwitchDelay
+
         print("__init__ was called of ax12_v3_modified.py")
         if(Ax12.port == None):
             Ax12.port = Serial(

@@ -20,13 +20,14 @@ class ArmDriver:
     #   [[Base Servo Id's], [Arm Servo Id's], [Head Servo Id's]]
     # Position structure array:
     #   [Base Angle, [Arm Angles], Head Angle]
-
-    ServoLibrary = Ax12()
+    ServoLibrary = None
     BaseIds = []
     ArmIds = []
     HeadIds = []
 
-    def __init__(self, armStructure, conversionNumber, defaultStabilisationAmount, zeroPostion, foldPosition, weighPosition):
+    def __init__(self, armStructure, conversionNumber, defaultStabilisationAmount, zeroPostion, foldPosition, weighPosition, directionPin, directionTX, directionRX, directionSwitchDelay):
+        ArmDriver.ServoLibrary = Ax12(
+            directionPin, directionTX, directionRX, directionSwitchDelay)
         for x in armStructure[0]:
             self.BaseIds.append(x)
         for x in armStructure[1]:

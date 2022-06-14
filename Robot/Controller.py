@@ -1,6 +1,7 @@
 # ==== General Imports: ====
 import asyncio
 from bleak import BleakClient
+import RPi.GPIO as GPIO
 
 # ==== Package Imports ====
 from ComputerVision.Tracker import Tracker
@@ -12,9 +13,10 @@ from ExternalComponent.Screen import Screen
 from IOComponent.Hcsr04 import Hcsr04
 from IOComponent.Magnet import Magnet
 from Types.Action import Action
+from Types.ArmPart import ArmPart
 from Types.ArmPosition import ArmPosition
 from Types.SteeringMode import SteeringMode
-from Types.ArmPart import ArmPart
+from Types.TrackMode import TrackMode
 
 # ================
 # ---- Notes: ----
@@ -67,6 +69,7 @@ class Controller:
     # =====================================
     # ------ Pin configuration ------
     # =====================================
+    AX12_DIRECTION_PIN = 23
     HCSR04_ECHO_PIN = 20
     HCSR04_TRIGGER_PIN = 16
     HX711_DATA_PIN = 5
@@ -96,9 +99,12 @@ class Controller:
     # ----- Arm / Servo configuration -----
     # =====================================
     #ARM_STRUCTURE = [[69], [70, 71], [72]]
-    ARM_STRUCTURE = [[69], [70, 71], [72]]
+    ARM_STRUCTURE = [[63], [23, 32], [69]]
     CONVERSION_NUMBER = 0.29
     DEFAULT_STABILISATION_AMOUNT = 180
+    DIRECTION_RX = GPIO.LOW
+    DIRECTION_SWITCH_DELAY = 0.0001
+    DIRECTION_TX = GPIO.HIGH
     FOLD_POSITION = [517, [60], 60]
     MAX_POSITION_PER_ROTATION_REQUEST = 4  # 1.16°
     WEIGH_POSITION = [517, [672], 51]
@@ -122,7 +128,8 @@ class Controller:
     ObjectTracker = Tracker()
     Arm = ArmDriver(ARM_STRUCTURE, CONVERSION_NUMBER,
                     DEFAULT_STABILISATION_AMOUNT, ZERO_POSITION,
-                    FOLD_POSITION, WEIGH_POSITION)
+                    FOLD_POSITION, WEIGH_POSITION, AX12_DIRECTION_PIN,
+                    DIRECTION_TX, DIRECTION_RX, DIRECTION_SWITCH_DELAY)
     Camera = Camera()
     Remote = Remote(ADDRESS, UUID, CENTER_X_LEFT, CENTER_Y_LEFT,
                     CENTER_X_RIGHT, CENTER_Y_RIGHT, RANGE, INNER_DEADZONE, OUTER_DEADZONE)
@@ -192,9 +199,11 @@ class Controller:
                         elif command_array[4] == "Autonomous":
                             frame = Controller.Camera.read()
                             if command_array[5] == "ON":
-                                pass
+                                objectPosition = Controller.ObjectTracker.GetPositionTrackingObject(
+                                    frame, TrackMode.BlueBlock)
                             elif command_array[6] == "ON":
-                                pass
+                                objectPosition = Controller.ObjectTracker.GetPositionTrackingObject(
+                                    frame, TrackMode.BlackLine)
                             elif command_array[7] == "ON":
                                 pass
 
