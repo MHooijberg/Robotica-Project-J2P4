@@ -2,11 +2,35 @@ from hx711 import HX711
 import time
 import sys
 import RPi.GPIO as GPIO
+# ================
+# ---- Notes: ----
+# ================
+#
+#
+# TODO: Test this code includes calibrating
+#
+# --Function--
+#
+# This class contains code for using the HX711 ~ a weight sensor
+# It needs to be calibrated before serious usage
 # The following is modified code from the 'example' file from https://github.com/tatobari/hx711py
 # The 'hx711' file is from the same source and is not modified at all
-# Any comments from, with some exeptions, from this file as well as the 'hx711' file have been added by the original creator
-# Originally a file for a virtual hx711 was included, but has been deleted, because it has no purpose within this contect
-# TODO: Test this code
+# Any comments, with some exeptions, from this file as well as the 'hx711' file have been added by the original creator
+# Originally a file for a virtual hx711 was included, but has been deleted, because it has no purpose within this context
+#
+# --How to use--
+#
+# 1. First the sensor needs to be calibrated, the 'referenceUnit' variable needs to be modified for this
+#    Get something that has a known weight and weigh it (it is recommended to choose an average value of the maximum capacity of the load cell)
+#    the output that is obtained should be devided by the weight of the known weight object in grams to get the following formulla:
+#    output / known weight object in grams = referenceUnit
+# 2. After this is done the 'calibrate' and 'getWeight' functionas should work accordingly
+#    However, if the output is still not the desired outcome, it is reccommended the comments of the author of the HX711 library are being read
+#    These can be found within the 'calibrate' method
+#
+#
+
+
 class WeightSensor:
     
     def __init__(self, pinA, pinB):
@@ -15,7 +39,7 @@ class WeightSensor:
         hx = HX711(pinA, pinB)
 
     def calibrate(self):
-         # I've found out that, for some reason, the order of the bytes is not always the same between versions of python, numpy and the hx711 itself.
+        # I've found out that, for some reason, the order of the bytes is not always the same between versions of python, numpy and the hx711 itself.
         # Still need to figure out why does it change.
         # If you're experiencing super random values, change these values to MSB or LSB until to get more stable values.
         # There is some code below to debug and log the order of the bits and the bytes.
