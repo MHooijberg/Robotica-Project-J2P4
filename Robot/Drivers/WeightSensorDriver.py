@@ -1,4 +1,5 @@
-from hx711 import HX711
+from IOComponent.Hx711 import Hx711
+
 import time
 import sys
 import RPi.GPIO as GPIO
@@ -31,12 +32,12 @@ import RPi.GPIO as GPIO
 #
 
 
-class WeightSensor:
-    
+class WeightSensorDriver:
+
     def __init__(self, pinA, pinB):
-        referenceUnit = 1 
-        #recommended: "pinA" = 5 and "pinB" = 6
-        hx = HX711(pinA, pinB)
+        referenceUnit = 1
+        # recommended: "pinA" = 5 and "pinB" = 6
+        hx = Hx711(pinA, pinB)
 
     def calibrate(self):
         # I've found out that, for some reason, the order of the bytes is not always the same between versions of python, numpy and the hx711 itself.
@@ -73,14 +74,11 @@ class WeightSensor:
         # binary_string = hx.get_binary_string()
         # print binary_string + " " + np_arr8_string
 
-
     def getWeight(self):
-       
 
         # Prints the weight. Comment if you're debbuging the MSB and LSB issue.
         val = self.hx.get_weight(5)
         print(val)
-
         # To get weight from both channels (if you have load cells hooked up 
         # to both channel A and B), do something like this
         #val_A = hx.get_weight_A(5)

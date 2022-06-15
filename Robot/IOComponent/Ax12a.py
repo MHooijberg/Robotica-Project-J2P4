@@ -8,7 +8,6 @@ https://github.com/jes1510/python_dynamixels
 and Josue Alejandro Savage's Arduino library:
 http://savageelectronics.blogspot.it/2011/01/arduino-y-dynamixel-ax-12.html
 '''
-# TODO: Find a solution for the channel blockades, and close it afterwards.
 from time import sleep
 from serial import Serial
 import RPi.GPIO as GPIO
@@ -130,16 +129,21 @@ class Ax12:
     TX_DELAY_TIME = 0.00002
 
     # direction constants
-    DIRECTION_PIN = 4  # sysfs GPIO0 for Orbitty Carrier in Jetson TX2
-    DIRECTION_TX = GPIO.HIGH
-    DIRECTION_RX = GPIO.LOW
-    DIRECTION_SWITCH_DELAY = 0.0001
+    DIRECTION_PIN = None
+    DIRECTION_TX = None
+    DIRECTION_RX = None
+    DIRECTION_SWITCH_DELAY = None
 
     # static variables
     port = None
     gpioSet = False
 
-    def __init__(self, baud_rate=1000000):
+    def __init__(self, directionPin, directionTX, directionRX, directionSwitchDelay, baud_rate=1000000):
+        Ax12.DIRECTION_PIN = directionPin
+        Ax12.DIRECTION_TX = directionTX
+        Ax12.DIRECTION_RX = directionRX
+        Ax12.DIRECTION_SWITCH_DELAY = directionSwitchDelay
+
         print("__init__ was called of ax12_v3_modified.py")
         if(Ax12.port == None):
             Ax12.port = Serial(
@@ -329,6 +333,12 @@ class Ax12:
         self.direction(Ax12.DIRECTION_TX)
         Ax12.port.flushInput()
         p = [position & 0xff, position >> 8]
+#         print("Type id: ", type(id),
+#         "\nAx12.AX_GOAL_LENGTH: ", type(Ax12.AX_GOAL_LENGTH),
+#         "\nAx12.AX_WRITE_DATA: ", type(Ax12.AX_WRITE_DATA),
+#         "\nAx12.AX_GOAL_POSITION_L: ", type(Ax12.AX_GOAL_POSITION_L),
+#         "\np[0]: ", type(p[0]),
+#         "\np[1]: ", type(p[1]))
         checksum = (~(id + Ax12.AX_GOAL_LENGTH + Ax12.AX_WRITE_DATA +
                     Ax12.AX_GOAL_POSITION_L + p[0] + p[1])) & 0xff
         outData = bytes([Ax12.AX_START])
@@ -739,40 +749,3 @@ class Ax12:
                           str(i) + ': ' + str(detail))
                 pass
         return servoList
-
-#
-# def playPose() :
-#    '''
-#    Open a file and move the servos to specified positions in a group move
-#    '''
-#    infile=open(Arguments.playpose, 'r')    # Open the file
-#    poseDict = {}                           # Dictionary to hold poses and positions
-#    if Arguments.verbose: print("Reading pose from", Arguments.playpose)
-#    for line in infile.readlines() :        # Read the file and step through it
-#        servo = int(line.split(':')[0])     # Servo is first
-#        position = int(line.split(':')[1])  # Position is second
-#        poseDict[servo]=position            # add the servo to the Dictionary
-#
-#    groupMove2(poseDict)
-#
-#
-#
-# def writePose() :
-#    '''
-#    Read the servos and save the positions to a file
-#    '''
-#    of = open(Arguments.savepose, 'w')      # open the output file
-#    pose = getPose2(connectedServos)        # get the positions
-#    if Arguments.verbose:
-#        print("Servo Positions")
-#        print("---------------")
-#
-#    for key in pose.keys():                # step through the keys, writing to the file
-#        if Arguments.verbose: print("Servo " + str(key), pose[key])
-#        of.write(str(key) + ':' + str(pose[key]) + '\n')    # Write to the file
-#
-#    if Arguments.verbose:
-#        print("Wrote pose to " + Arguments.savepose)
-#
-#    of.close()      # close the file
-#

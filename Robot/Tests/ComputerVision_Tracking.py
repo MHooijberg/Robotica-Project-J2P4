@@ -1,5 +1,5 @@
-import Robot.Types.ObjectPosition as ObjectPosition
-import Robot.ComputerVision.Tracker as Tracker
+from Types.ObjectPosition import ObjectPosition
+from ComputerVision.Tracker import Tracker
 
 
 def ComputerVisionTrackingTest():
@@ -7,16 +7,13 @@ def ComputerVisionTrackingTest():
     last_direction = ObjectPosition.middle
     while True:
         current_direction = Tracker().GetPositionTrackingObject()
-        if (current_direction != last_direction):
-            match current_direction:
-                case ObjectPosition.left:
-                    print("links")
-                case ObjectPosition.middle:
-                    print("midden")
-                case ObjectPosition.right:
-                    print("rechts")
-            last_direction = current_direction
+        if ObjectPosition.left:
+            print("links")
+        if ObjectPosition.middle:
+            print("midden")
+        if ObjectPosition.right:
+            print("rechts")
+        last_direction = current_direction
 
 
-# TODO: Define how we test, now this code will be executed after importing (if I'm not mistaken).
 ComputerVisionTrackingTest()

@@ -1,68 +1,87 @@
 import cv2 as cv
 from cv2 import WINDOW_NORMAL
 import numpy as np
-import Robot.Types.TrackMode as TrackMode
-import Robot.Types.ObjectPosition as ObjectPosition
+from Types.TrackMode import TrackMode
+from Types.ObjectPosition import ObjectPosition
+from Types.TrackMode import TrackMode
 
 
 class Tracker:
-    def __init__(self):
-        self.cap = cv.VideoCapture(0)
+    def GetPositionTrackingObject(self, frame, trackMode):
+        width = frame.shape[1]
 
-    def GetPositionTrackingObject(self):
+        if trackMode == TrackMode.BlueBlock:
+            lower_color_filter = np.array([77, 87, 64])
+            upper_color_filter = np.array([88, 182, 215])
 
-        # while True:
-        _, self.frame = self.cap.read()
+        elif trackMode == TrackMode.BlackLine:
+            lower_color_filter = np.array([0, 0, 0])
+            upper_color_filter = np.array([179, 101, 100])
 
-        width = 500
-
-        height = 500
+        lower_color_filter = np.array([78, 244, 89])
+        upper_color_filter = np.array([109, 255, 158])
 
         # Convert BGR to HSV
-        hsv = cv.cvtColor(self.frame, cv.COLOR_BGR2HSV)
-        # define range of blue color in HSV
-        #lower_color_filter = np.array([82, 150, 100])
-        #upper_color_filter = np.array([90, 255, 255])
-        lower_color_filter = np.array([100, 206, 30])
-        upper_color_filter = np.array([130, 255, 180])
-        # Threshold the HSV image to get only the specified colorsq
+        hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
+
+        # Threshold the HSV image to get only the specified colors
         mask = cv.inRange(hsv, lower_color_filter, upper_color_filter)
+
         # Bitwise-AND mask and original image
-        res = cv.bitwise_and(self.frame, self.frame, mask=mask)
+        res = cv.bitwise_and(frame, frame, mask=mask)
 
-        contours, hierarchy = cv.findContours(
-            mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+        # Get contours
+        contours, hierarchy = cv.findContours(mask, 1, cv.CHAIN_APPROX_NONE)
 
+        # Centroid X and Y values
         cx = 0
         cy = 0
-
+        biggestContour = None
+        # for every contour
         for cntr in contours:
+            # Find convex hull
             hull = [cv.convexHull(cntr)]
+
+            # Find moments(average of pixel intensities) for finding centroid
             M = cv.moments(cntr)
+
+            # Find area for small protective layer
             area = cv.contourArea(cntr)
 
+            # Calculate centroid coördinates
             if M['m00'] != 0:
                 cx = int(M['m10']/M['m00'])
                 cy = int(M['m01']/M['m00'])
 
-                if area > 400:
-                    cv.drawContours(self.frame, hull, -1, (0, 0, 255), 2)
-                    cv.circle(self.frame, (cx, cy), 5, (0, 255, 255), -1)
+                if (biggestContour is None) or (area > cv.contourArea(biggestContour)):
+                    biggestContour = cntr
 
-                #print("X:", cx, "Y:", cy)
-            if cx > 450:
-                return ObjectPosition.left
-            if cx < 200:
-                return ObjectPosition.right
-            if cx < 450 and cx > 200:
-                return ObjectPosition.middle
+        # Small protective layer to get rid of noise
+        if biggestContour is not None:
+            cv.drawContours(frame, hull, -1, (0, 0, 255), 2)
+            cv.circle(frame, (cx, cy), 5, (0, 255, 255), -1)
+            widthFactor = width / 100
+            # print("X:", cx, "Y:", cy)
+            if cx > (int(widthFactor * 66)):
+                print("The object position was: Right")
+                return ObjectPosition.Right
+            elif cx < (int(widthFactor * 33)):
+                print("The object position was: Left")
+                return ObjectPosition.Left
+            elif cx > (int(widthFactor * 33)) and cx < (int(widthFactor * 66)):
+                print("The object position was: Middle")
+                return ObjectPosition.Middle
+        else:
+            print("The object position was not found")
+            return ObjectPosition.NotFound
+        # return frame
 
-                # if cx>450:
-                #     print("left")
-                # if cx<200:
-                #     print("right")
-                # if cx<450 and cx>200:
-                #     print("middle")
+        # if cx>450:
+        #     print("left")
+        # if cx<200:
+        #     print("right")
+        # if cx<450 and cx>200:
+        #     print("middle")
 
         # cv.namedWindow('frame', WINDOW_NORMAL)
         # cv.resizeWindow('frame', (width, height))
