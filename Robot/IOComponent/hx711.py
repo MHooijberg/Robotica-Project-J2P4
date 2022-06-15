@@ -38,7 +38,7 @@ class Hx711:
 
         self.set_gain(gain)
 
-        # TODO: Think about whether this is necessary.
+        # Think about whether this is necessary.
         time.sleep(1)
 
     def convertFromTwosComplement24bit(self, inputValue):

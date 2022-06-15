@@ -1,12 +1,34 @@
-from hx711 import HX711
+from IOComponent.Hx711 import Hx711
 import time
 import sys
 import RPi.GPIO as GPIO
+# ================
+# ---- Notes: ----
+# ================
+#
+#
+# TODO: Test this code includes calibrating
+#
+# --Function--
+#
+# This class contains code for using the HX711 ~ a weight sensor
+# It needs to be calibrated before serious usage
 # The following is modified code from the 'example' file from https://github.com/tatobari/hx711py
 # The 'hx711' file is from the same source and is not modified at all
-# Any comments from, with some exeptions, from this file as well as the 'hx711' file have been added by the original creator
-# Originally a file for a virtual hx711 was included, but has been deleted, because it has no purpose within this contect
-# TODO: Test this code
+# Any comments, with some exeptions, from this file as well as the 'hx711' file have been added by the original creator
+# Originally a file for a virtual hx711 was included, but has been deleted, because it has no purpose within this context
+#
+# --How to use--
+#
+# 1. First the sensor needs to be calibrated, the 'referenceUnit' variable needs to be modified for this
+#    Get something that has a known weight and weigh it (it is recommended to choose an average value of the maximum capacity of the load cell)
+#    the output that is obtained should be devided by the weight of the known weight object in grams to get the following formulla:
+#    output / known weight object in grams = referenceUnit
+# 2. After this is done the 'calibrate' and 'getWeight' functionas should work accordingly
+#    However, if the output is still not the desired outcome, it is reccommended the comments of the author of the HX711 library are being read
+#    These can be found within the 'calibrate' method
+#
+#
 
 
 class WeightSensorDriver:
@@ -14,9 +36,9 @@ class WeightSensorDriver:
     def __init__(self, pinA, pinB):
         referenceUnit = 1
         # recommended: "pinA" = 5 and "pinB" = 6
-        hx = HX711(pinA, pinB)
+        hx = Hx711(pinA, pinB)
 
-    def getWeight(self):
+    def calibrate(self):
         # I've found out that, for some reason, the order of the bytes is not always the same between versions of python, numpy and the hx711 itself.
         # Still need to figure out why does it change.
         # If you're experiencing super random values, change these values to MSB or LSB until to get more stable values.
@@ -51,6 +73,8 @@ class WeightSensorDriver:
         # binary_string = hx.get_binary_string()
         # print binary_string + " " + np_arr8_string
 
+    def getWeight(self):
+
         # Prints the weight. Comment if you're debbuging the MSB and LSB issue.
         val = self.hx.get_weight(5)
         print(val)
@@ -61,8 +85,6 @@ class WeightSensorDriver:
         #val_B = hx.get_weight_B(5)
         # print "A: %s  B: %s" % ( val_A, val_B )
 
-
-# TODO: Volgens de code review kan dit waarschijnlijk weg.
         self.hx.power_down()
         self.hx.power_up()
         return val
