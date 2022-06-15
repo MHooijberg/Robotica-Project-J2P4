@@ -6,6 +6,7 @@ import RPi.GPIO as GPIO
 # ==== Package Imports ====
 from ComputerVision.Tracker import Tracker
 from Drivers.ArmDriver import ArmDriver
+from Drivers.WeightSensorDriver import WeightSensorDriver
 from Drivers.WheelDriver import WheelDriver
 from ExternalComponent.Camera import Camera
 from ExternalComponent.Remote import Remote
@@ -76,7 +77,7 @@ class Controller:
     HCSR04_ECHO_PIN = 20
     HCSR04_TRIGGER_PIN = 16
     HX711_DATA_PIN = 5
-    HX711_CLOCK_PIN = 5
+    HX711_CLOCK_PIN = 6
     M1A_PIN = 12
     M1B_PIN = 18
     M2A_PIN = 19
@@ -139,6 +140,7 @@ class Controller:
     Screen = Screen()
     Magnet = Magnet(MAGNET_PIN)
     MotorDriver = WheelDriver(M1A_PIN, M1B_PIN, M2A_PIN, M2B_PIN)
+    WeightSensor = WeightSensorDriver(HX711_DATA_PIN, HX711_CLOCK_PIN)
 
     @staticmethod
     async def Update_Loop():
@@ -157,6 +159,10 @@ class Controller:
                             continue
 
                         # Handle the manual control menu.
+                        elif command_array[4] == "Menu":
+                            if command_array[5] == "ON":
+                                Controller.Pitch()
+                                # Handle the manual control menu.
                         elif command_array[4] == "Manually":
 
                             # Drive
@@ -195,9 +201,11 @@ class Controller:
                             if command_array[7] == "ON" and Controller.MAGNET_IS_ACTIVE is False:
                                 Controller.MAGNET_IS_ACTIVE = True
                                 Controller.Magnet.turnON()
+                                weight = Controller.WeightSensor.getWeight()
                             elif command_array[7] == "OFF" and Controller.MAGNET_IS_ACTIVE is True:
                                 Controller.MAGNET_IS_ACTIVE = False
                                 Controller.Magnet.turnOff()
+                                Controller.WeightSensor.calibrate()
 
                         # Handle the autonomous control menu.
                         elif command_array[4] == "Autonomous":
@@ -241,11 +249,12 @@ class Controller:
     def DefaultPosition():
         Controller.MotorDriver.Brake()
 
+    @staticmethod
     def Pitch():
-        Controller.MotorDriver.Drive( (20, 20), SteeringMode.Static)
+        Controller.MotorDriver.Drive((20, 20), SteeringMode.Static)
         time.sleep(3)
         Controller.MotorDriver.Brake()
-        playsound("jenny-pitch.mp3", False) 
+        playsound("jenny-pitch.mp3", False)
         time.sleep(2)
         Controller.MotorDriver.Drive((30, 0), SteeringMode.Static)
         time.sleep(2)
@@ -268,6 +277,3 @@ class Controller:
         Controller.MotorDriver.Drive((-30, 0), SteeringMode.Static)
         time.sleep(2)
         Controller.MotorDriver.Brake()
-        
-
-
