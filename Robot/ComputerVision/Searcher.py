@@ -9,7 +9,6 @@ import math
 # ================
 #
 #
-# TODO: determening the direction, using 'findTarget' is not 100% reliable
 # TODO: this class will take in account that the camera uses a resolution which shows the ground, and the walls
 #       this is why it calculates the average: because the walls don't need to be scanned for objects
 #       however a resolution may be given on which only the ground will be seen (for example for optimalisation purposes)
@@ -161,8 +160,8 @@ class Searcher:
         # try to find objects, using the createRadar method
         junk = Searcher.createRadar(self)
         
-        if self.DisplayImage is True:
-            cv2.imshow('debugg1', junk)
+        #if self.DisplayImage is True:
+            #cv2.imshow('debugg1', junk)
         black = self.black
         # resize the black background to the cameraframe again
         width = int(junk.shape[1])
@@ -224,28 +223,22 @@ class Searcher:
         # convert to grayscale, because the .item check does difficult with colour images
         targetgray = cv2.cvtColor(target, cv2.COLOR_BGR2GRAY)
 
-        # first checks if the target is located at the center of the screen
-        for j in range (halfwidth): 
-                for i in range(targetheight-5,0,-1):
-                                                     
-                    if targetgray.item(i,j) == 255:     
-                        direction = 'Forward'
-                        return direction
-                        break                       
-                else:                               
-                    break
         # after this, it will check if it is located either left or right of the center of the screen
-        for j in range (0,targetwidth,self.StepSize):    
+        # when a pixel is found at the exact center of the screen, direction becomes 'forward' and gets returned instantly
+        for j in range (0,targetwidth, 1):    
                 for i in range(targetheight-5,0,-1):     
                                                          
                     if targetgray.item(i,j) == 255:          
+                        if j == halfwidth:
+                            direction = 'Forward'
+                            return direction
+                            break 
                         if j < halfwidth:
                             direction = 'Steer left'
+                            break
                         else:
                             direction = 'Steer right'
-                        break                            
-                              
-                                                         
+                            break
         return direction
 
             
