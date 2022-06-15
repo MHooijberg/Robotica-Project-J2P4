@@ -1,17 +1,14 @@
 import cv2 as cv
 from cv2 import WINDOW_NORMAL
 import numpy as np
-import Types.TrackMode as TrackMode
-import Types.ObjectPosition as ObjectPosition
+from Types.TrackMode import TrackMode
+from Types.ObjectPosition import ObjectPosition
 from Types.TrackMode import TrackMode
 
-class Tracker:
-    def __init__(self):
-        pass
 
+class Tracker:
     def GetPositionTrackingObject(self, frame, trackMode):
-        width = 500
-        height = 500
+        width = frame.shape[1]
 
         if trackMode == TrackMode.BlueBlock:
             lower_color_filter = np.array([77, 87, 64])
@@ -21,7 +18,10 @@ class Tracker:
             lower_color_filter = np.array([0, 0, 0])
             upper_color_filter = np.array([179, 101, 100])
 
-        #Convert BGR to HSV
+        lower_color_filter = np.array([78, 244, 89])
+        upper_color_filter = np.array([109, 255, 158])
+
+        # Convert BGR to HSV
         hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
 
         # Threshold the HSV image to get only the specified colors
@@ -36,10 +36,9 @@ class Tracker:
         # Centroid X and Y values
         cx = 0
         cy = 0
-
+        biggestContour = None
         # for every contour
         for cntr in contours:
-            
             # Find convex hull
             hull = [cv.convexHull(cntr)]
 
@@ -54,31 +53,38 @@ class Tracker:
                 cx = int(M['m10']/M['m00'])
                 cy = int(M['m01']/M['m00'])
 
-                # Small protective layer to get rid of noise
-                if area > 400:
-                    cv.drawContours(frame, hull, -1, (0, 0, 255), 2)
-                    cv.circle(frame, (cx, cy), 5, (0, 255, 255), -1)
+                if (biggestContour is None) or (area > cv.contourArea(biggestContour)):
+                    biggestContour = cntr
 
-                        #print("X:", cx, "Y:", cy)
-                    if cx > 450:
-                        print("The object position was: Left")
-                        return ObjectPosition.Left
-                    if cx < 200:
-                        print("The object position was: Right")
-                        return ObjectPosition.Right
-                    if cx < 450 and cx > 200:
-                        print("The object position was: Middle")
-                        return ObjectPosition.Middle
+        # Small protective layer to get rid of noise
+        if biggestContour is not None:
+            cv.drawContours(frame, hull, -1, (0, 0, 255), 2)
+            cv.circle(frame, (cx, cy), 5, (0, 255, 255), -1)
+            widthFactor = width / 100
+            # print("X:", cx, "Y:", cy)
+            if cx > (int(widthFactor * 66)):
+                print("The object position was: Right")
+                return ObjectPosition.Right
+            elif cx < (int(widthFactor * 33)):
+                print("The object position was: Left")
+                return ObjectPosition.Left
+            elif cx > (int(widthFactor * 33)) and cx < (int(widthFactor * 66)):
+                print("The object position was: Middle")
+                return ObjectPosition.Middle
+        else:
+            print("The object position was not found")
+            return ObjectPosition.NotFound
+        # return frame
 
-                # if cx>450:
-                #     print("left")
-                # if cx<200:
-                #     print("right")
-                # if cx<450 and cx>200:
-                #     print("middle")
+        # if cx>450:
+        #     print("left")
+        # if cx<200:
+        #     print("right")
+        # if cx<450 and cx>200:
+        #     print("middle")
 
-        #cv.namedWindow('frame', WINDOW_NORMAL)
-        #cv.resizeWindow('frame', (width, height))
+        # cv.namedWindow('frame', WINDOW_NORMAL)
+        # cv.resizeWindow('frame', (width, height))
 
         # cv.imshow('frame', frame)
         # cv.imshow('mask', mask)

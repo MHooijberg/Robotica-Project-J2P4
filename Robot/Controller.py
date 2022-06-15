@@ -15,6 +15,7 @@ from IOComponent.Magnet import Magnet
 from Types.Action import Action
 from Types.ArmPart import ArmPart
 from Types.ArmPosition import ArmPosition
+from Types.ObjectPosition import ObjectPosition
 from Types.SteeringMode import SteeringMode
 from Types.TrackMode import TrackMode
 
@@ -155,6 +156,7 @@ class Controller:
 
                         # Handle the manual control menu.
                         elif command_array[4] == "Manually":
+
                             # Drive
                             if command_array[5] == "ON":
                                 joystickA = Controller.Remote.JoystickToPercentage(
@@ -201,9 +203,20 @@ class Controller:
                             if command_array[5] == "ON":
                                 objectPosition = Controller.ObjectTracker.GetPositionTrackingObject(
                                     frame, TrackMode.BlueBlock)
+                                if objectPosition != ObjectPosition.NotFound:
+                                    if objectPosition == ObjectPosition.Middle:
+                                        Controller.MotorDriver.Brake()
+                                    elif objectPosition == ObjectPosition.Left:
+                                        Controller.MotorDriver.Drive(
+                                            (0, -60), SteeringMode.Static)
+                                    elif objectPosition == ObjectPosition.Right:
+                                        Controller.MotorDriver.Drive(
+                                            (0, 60), SteeringMode.Static)
                             elif command_array[6] == "ON":
                                 objectPosition = Controller.ObjectTracker.GetPositionTrackingObject(
                                     frame, TrackMode.BlackLine)
+                                if objectPosition != ObjectPosition.NotFound:
+                                    pass
                             elif command_array[7] == "ON":
                                 pass
 
