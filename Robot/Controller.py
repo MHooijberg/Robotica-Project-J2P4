@@ -19,6 +19,8 @@ from Types.ObjectPosition import ObjectPosition
 from Types.SteeringMode import SteeringMode
 from Types.TrackMode import TrackMode
 
+from playsound import playsound
+import time
 # ================
 # ---- Notes: ----
 # ================
@@ -238,3 +240,34 @@ class Controller:
     @staticmethod
     def DefaultPosition():
         Controller.MotorDriver.Brake()
+
+    def Pitch():
+        Controller.MotorDriver.Drive( (20, 20), SteeringMode.Static)
+        time.sleep(3)
+        Controller.MotorDriver.Brake()
+        playsound("jenny-pitch.mp3", False) 
+        time.sleep(2)
+        Controller.MotorDriver.Drive((30, 0), SteeringMode.Static)
+        time.sleep(2)
+        Controller.MotorDriver.Drive((-30, 0), SteeringMode.Static)
+        time.sleep(4)
+        Controller.MotorDriver.Drive((30, 0), SteeringMode.Static)
+        time.sleep(4)
+        Controller.MotorDriver.Drive((-30, 0), SteeringMode.Static)
+        time.sleep(2)
+        Controller.MotorDriver.Brake()
+        if time >= 19.70 and time <= 21:
+            Controller.MotorDriver.Drive((60, 0), SteeringMode.Static)
+        time.sleep(20)
+        Controller.MotorDriver.Drive((30, 0), SteeringMode.Static)
+        time.sleep(2)
+        Controller.MotorDriver.Drive((-30, 0), SteeringMode.Static)
+        time.sleep(4)
+        Controller.MotorDriver.Drive((30, 0), SteeringMode.Static)
+        time.sleep(4)
+        Controller.MotorDriver.Drive((-30, 0), SteeringMode.Static)
+        time.sleep(2)
+        Controller.MotorDriver.Brake()
+        
+
+
