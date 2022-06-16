@@ -215,11 +215,9 @@ class Searcher:
 
         targetwidth = target.shape[1] - 1 # the width of the 'target' image
         targetheight = target.shape[0] - 1 # the height of the 'target' image
-        # 'halfwidth' is currently a magic number, this can be changed with the commented code beneath, but it gave certain troubles
-        halfwidth = 319
-        #halfwidth = targetwidth / 2 - width % 2
         
-        
+        halfwidth = targetwidth / 2 - 0.5 * (targetwidth % 2)
+               
         # convert to grayscale, because the .item check does difficult with colour images
         targetgray = cv2.cvtColor(target, cv2.COLOR_BGR2GRAY)
 
