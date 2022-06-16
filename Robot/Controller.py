@@ -234,9 +234,14 @@ class Controller:
                         # Handle the dance menu.
                         elif command_array[4] == "Dance":
                             if command_array[5] == "ON":
-                                pass
+                                Controller.Dance()
+                        
+        
                             elif command_array[6] == "ON":
                                 pass
+                            elif command_array[5] == "OFF" and command_array[6] == "OFF":
+                                Controller.MotorDriver.Brake()
+
             # If it doesn't connect or the connection is dropped, then print error and try again.
             except Exception as e:
                 print(e)
@@ -252,8 +257,7 @@ class Controller:
 
     @staticmethod
     def Pitch():
-        playsound("jenny-pitch.mp3", True)
-        Controller.MotorDriver.Drive((20, 20), SteeringMode.Static)
+        Controller.MotorDriver.Drive((5, 5), SteeringMode.Static)
         time.sleep(3)
         Controller.MotorDriver.Brake()
         time.sleep(2)
@@ -264,11 +268,24 @@ class Controller:
         Controller.MotorDriver.Drive((30, 0), SteeringMode.Static)
         time.sleep(4)
         Controller.MotorDriver.Drive((-30, 0), SteeringMode.Static)
-        time.sleep(2)
+        time.sleep(1)
         Controller.MotorDriver.Brake()
         if time >= 19.70 and time <= 21:
             Controller.MotorDriver.Drive((60, 0), SteeringMode.Static)
         time.sleep(20)
+        Controller.MotorDriver.Drive((30, 0), SteeringMode.Static)
+        time.sleep(2)
+        Controller.MotorDriver.Drive((-30, 0), SteeringMode.Static)
+        time.sleep(4)
+        Controller.MotorDriver.Drive((30, 0), SteeringMode.Static)
+        time.sleep(4)
+        Controller.MotorDriver.Drive((-30, 0), SteeringMode.Static)
+        time.sleep(2)
+        Controller.MotorDriver.Brake()
+       
+    @staticmethod
+    def Dance():
+        #ADD the motor functions and arm functions
         Controller.MotorDriver.Drive((30, 0), SteeringMode.Static)
         time.sleep(2)
         Controller.MotorDriver.Drive((-30, 0), SteeringMode.Static)
