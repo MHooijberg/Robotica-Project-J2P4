@@ -117,7 +117,7 @@ class Controller:
     # =====================================
     # ---- Driving configuration ----
     # =====================================
-    STEERING_MODE = SteeringMode.Dynamic
+    STEERING_MODE = SteeringMode.Static
 
     # =====================================
     # ----------- States ------------
