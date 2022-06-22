@@ -124,7 +124,7 @@ class Searcher:
                 EdgeArray.append((j,0))             
                                                     
         # 'target' will be only the thick, red lines
-        target = Searcher.findStuff(black) 
+        target = Searcher.findRedStuff(black) 
         # display both the camera and the radar
         if self.DisplayImage is True:
             cv2.imshow("camera", img)
@@ -136,7 +136,7 @@ class Searcher:
 
     # the 'findStuff' method is some kind of filter that will remove the radar effect on a black image, while keeping the thick, red lines
     # it takes a black image, containing the radar and the targets as an argument and will return the same image without the radar
-    def findStuff(img):
+    def findRedStuff(img):
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
         # define range of red color in HSV
@@ -152,7 +152,23 @@ class Searcher:
 
         res = cv2.bitwise_and(img,img, mask= mask)
         return res
+        
+    def findGreenStuff(img):
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        lower_green = np.array([50,50,50])
+        upper_green = np.array([70,255,255])
+        mask = cv2.inRange(hsv, lower_green, upper_green)
+        res = cv2.bitwise_and(img,img, mask= mask)
+        return res
 
+    def findBlueStuff(img):
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        lower_blue = np.array([110,50,50])
+        upper_blue = np.array([130,255,255])
+        mask = cv2.inRange(hsv, lower_blue, upper_blue)
+        res = cv2.bitwise_and(img,img, mask= mask)
+        return res
+    
     # 'findTarget' will return a string containing either: 'forward', 'steer left', 'steer right', 'no items found' or 'Error'
     # when 'Error' is returned, something went wrong within this method
     def findTarget(self):
@@ -215,16 +231,13 @@ class Searcher:
 
         targetwidth = target.shape[1] - 1 # the width of the 'target' image
         targetheight = target.shape[0] - 1 # the height of the 'target' image
-        # 'halfwidth' is currently a magic number, this can be changed with the commented code beneath, but it gave certain troubles
-        halfwidth = 319
-        #halfwidth = targetwidth / 2 - width % 2
-        
+        halfwidth = targetwidth / 2 - 0.5 * (targetwidth % 2)
         
         # convert to grayscale, because the .item check does difficult with colour images
         targetgray = cv2.cvtColor(target, cv2.COLOR_BGR2GRAY)
-
+                
+                    
         # after this, it will check if it is located either left or right of the center of the screen
-        # when a pixel is found at the exact center of the screen, direction becomes 'forward' and gets returned instantly
         for j in range (0,targetwidth, 1):    
                 for i in range(targetheight-5,0,-1):     
                                                          
@@ -240,6 +253,82 @@ class Searcher:
                             direction = 'Steer right'
                             break
         return direction
+
+    
+    def findTray(self, colour):
+        while(True):
+            ret,img = self.capture.read()
+            ret,img = self.capture.read() 
+            ret,img = self.capture.read()
+            ret,img = self.capture.read()
+            ret,img = self.capture.read()
+            black = self.black
+            # resize the black background to the cameraframe again
+            width = int(img.shape[1])
+            height = int(img.shape[0])
+            dim = (width, height)
+            black = cv2.resize(black, dim, interpolation = cv2.INTER_AREA)
+            if colour == 'Red':
+                target = Searcher.findRedStuff(img)
+            elif colour == 'Green':
+                target = Searcher.findGreenStuff(img)
+            elif colour == 'Blue':
+                target = Searcher.findBlueStuff(img)    
+            else:
+                break
+            tarGray = cv2.cvtColor(target,cv2.COLOR_BGR2GRAY)
+            tarGray = cv2.bilateralFilter(tarGray,9,30,30)
+            tarEdge = cv2.Canny(tarGray, 50, 100)
+            if self.DisplayImage is True:
+                cv2.imshow("Camera", img)
+                cv2.imshow("Target",target)
+                cv2.imshow("Edgy", tarEdge)
+                if cv2.waitKey(1) & 0xFF == ord('x'):
+                    cv2.destroyAllWindows()
+                    break
+
+        targray = cv2.cvtColor(target, cv2.COLOR_BGR2GRAY)
+        ret,th = cv2.threshold(targray,1,255,cv2.THRESH_BINARY)
+        ret, thresh = cv2.threshold(th, 127, 255, 0)
+        contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        hierarchy = hierarchy[0]
+        show = img
+        objectCounter = 0
+        for cnr in range(len(contours)):
+            cnt = contours[cnr]
+            M = cv2.moments(cnt)
+            area = cv2.contourArea(cnt)
+            print(area)
+            if area > 1500:
+                objectCounter = objectCounter + 1
+                show = cv2.drawContours(black, [cnt], -1, (255,255,255), 3)
+
+        targetwidth = show.shape[1] - 1 
+        targetheight = show.shape[0] - 1
+        halfwidth = targetwidth / 2 - 0.5 * (targetwidth % 2)
+        cv2.imshow("Screen",show)
+        showgray = cv2.cvtColor(show, cv2.COLOR_BGR2GRAY)
+        if objectCounter <= 0:
+            direction = 'Not found'
+        else:
+            for j in range (0,targetwidth, 1):    
+                    for i in range(targetheight-5,0,-1):     
+                                                             
+                        if showgray.item(i,j) == 255:          
+                            if j == halfwidth:
+                                direction = 'Forward'
+                                return direction
+                                break 
+                            if j < halfwidth:
+                                direction = 'Steer left'
+                                break
+                            else:
+                                direction = 'Steer right'
+                                break
+            
+        
+        return direction
+
 
             
 #
