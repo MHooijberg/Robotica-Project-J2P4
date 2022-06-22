@@ -256,49 +256,46 @@ class Searcher:
 
     
     def findTray(self, colour):
-        while(True):
-            ret,img = self.capture.read()
-            ret,img = self.capture.read() 
-            ret,img = self.capture.read()
-            ret,img = self.capture.read()
-            ret,img = self.capture.read()
-            black = self.black
-            # resize the black background to the cameraframe again
-            width = int(img.shape[1])
-            height = int(img.shape[0])
-            dim = (width, height)
-            black = cv2.resize(black, dim, interpolation = cv2.INTER_AREA)
-            if colour == 'Red':
-                target = Searcher.findRedStuff(img)
-            elif colour == 'Green':
-                target = Searcher.findGreenStuff(img)
-            elif colour == 'Blue':
-                target = Searcher.findBlueStuff(img)    
-            else:
-                break
-            tarGray = cv2.cvtColor(target,cv2.COLOR_BGR2GRAY)
-            tarGray = cv2.bilateralFilter(tarGray,9,30,30)
-            tarEdge = cv2.Canny(tarGray, 50, 100)
-            if self.DisplayImage is True:
-                cv2.imshow("Camera", img)
-                cv2.imshow("Target",target)
-                cv2.imshow("Edgy", tarEdge)
-                if cv2.waitKey(1) & 0xFF == ord('x'):
-                    cv2.destroyAllWindows()
-                    break
+
+        ret,img = self.capture.read()
+        ret,img = self.capture.read() 
+        ret,img = self.capture.read()
+        ret,img = self.capture.read()
+        ret,img = self.capture.read()
+        black = self.black
+        # resize the black background to the cameraframe
+        width = int(img.shape[1])
+        height = int(img.shape[0])
+        dim = (width, height)
+        black = cv2.resize(black, dim, interpolation = cv2.INTER_AREA)
+        time.sleep(2)
+        if colour == 'Red':
+            target = Searcher.findRedStuff(img)
+        elif colour == 'Green':
+            target = Searcher.findGreenStuff(img)
+        elif colour == 'Blue':
+            target = Searcher.findBlueStuff(img)    
+        else:
+            return 'Incorrect colour value'
+        tarGray = cv2.cvtColor(target,cv2.COLOR_BGR2GRAY)
+        tarGray = cv2.bilateralFilter(tarGray,9,30,30)
+        tarEdge = cv2.Canny(tarGray, 50, 100)
+        if self.DisplayImage is True:
+            cv2.imshow("Camera", img)
+            cv2.imshow("Target",target)
+            cv2.imshow("Edgy", tarEdge)
 
         targray = cv2.cvtColor(target, cv2.COLOR_BGR2GRAY)
         ret,th = cv2.threshold(targray,1,255,cv2.THRESH_BINARY)
         ret, thresh = cv2.threshold(th, 127, 255, 0)
         contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        hierarchy = hierarchy[0]
         show = img
         objectCounter = 0
         for cnr in range(len(contours)):
             cnt = contours[cnr]
             M = cv2.moments(cnt)
             area = cv2.contourArea(cnt)
-            print(area)
+            #print(area)
             if area > 1500:
                 objectCounter = objectCounter + 1
                 show = cv2.drawContours(black, [cnt], -1, (255,255,255), 3)
@@ -328,6 +325,7 @@ class Searcher:
             
         
         return direction
+
 
 
             
