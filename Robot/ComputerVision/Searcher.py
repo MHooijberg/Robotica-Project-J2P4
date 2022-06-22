@@ -40,18 +40,14 @@ class Searcher:
     # a lot of variables will be defined within the '__init__' class
     # the camera argument needs to be the videocapture
     # Debugg is a boolean which determines if images should be shown, make it true when this is needed
-    def __init__(self, camera, Debugg):
+    def __init__(self, Debugg):
         # 'black' is a literal black image, which is used to put the ground drawing on, making it more noticeable
         self.black = cv2.imread('img/Pure_Black.png')
-        self.capture = camera
-        #self.capture.set(3,640) # 1024 640 1280 800 384
-        #self.capture.set(4,480) # 600 480 960 600 288
         self.StepSize = 8
         self.DisplayImage = Debugg
 
      
-    def createRadar(self):
-        
+    def createRadar(self, camera):
         
         # 'EdgeArray' stores the X and Y values of any found edges within the 'imgEdge' image
         # do NOT define any array at __init__, when running in a while loop
@@ -62,11 +58,11 @@ class Searcher:
         black = self.black
         # let image settle
         time.sleep(0.1)
-        ret,img = self.capture.read() # get a bunch of frames to make sure current frame is the most recent
-        ret,img = self.capture.read() 
-        ret,img = self.capture.read()
-        ret,img = self.capture.read()
-        ret,img = self.capture.read() # 5 seems to be enough
+        ret,img = camera.read() # get a bunch of frames to make sure current frame is the most recent
+        ret,img = camera.read() 
+        ret,img = camera.read()
+        ret,img = camera.read()
+        ret,img = camera.read() # 5 seems to be enough
 
         # resize the black background to the cameraframe
         width = int(img.shape[1])
@@ -171,10 +167,10 @@ class Searcher:
     
     # 'findTarget' will return a string containing either: 'forward', 'steer left', 'steer right', 'no items found' or 'Error'
     # when 'Error' is returned, something went wrong within this method
-    def findTarget(self):
+    def findTarget(self, camera):
         direction = 'Error'
         # try to find objects, using the createRadar method
-        junk = Searcher.createRadar(self)
+        junk = Searcher.createRadar(self, camera)
         
         #if self.DisplayImage is True:
             #cv2.imshow('debugg1', junk)
@@ -255,13 +251,13 @@ class Searcher:
         return direction
 
     
-    def findTray(self, colour):
+    def findTray(self, colour, camera):
 
-        ret,img = self.capture.read()
-        ret,img = self.capture.read() 
-        ret,img = self.capture.read()
-        ret,img = self.capture.read()
-        ret,img = self.capture.read()
+        ret,img = camera.read()
+        ret,img = camera.read()
+        ret,img = camera.read()
+        ret,img = camera.read()
+        ret,img = camera.read()
         black = self.black
         # resize the black background to the cameraframe
         width = int(img.shape[1])
