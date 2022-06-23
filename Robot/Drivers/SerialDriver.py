@@ -6,43 +6,38 @@ from Types.Component import Component
 
 
 class SerialDriver:
+    Pin = 24
+    SwithDelay = 0.0001
+    BautRateDisplay = 115200
+    BautRateServo = 1000000
+    currentDevice = Component.Display
 
-    def __init__(self, pin, swithDelay, bautRateDisplay, bautRateServo, startDevice):
-        self.Pin = pin
-        self.SwithDelay = swithDelay
-        self.BautRateDisplay = bautRateDisplay
-        self.BautRateServo = bautRateServo
-        if startDevice == Component.Display:
-            self.currentDevice = startDevice
-            startBaudRate = bautRateDisplay
-            self.Switch(Component.Display)
-        elif startDevice == Component.Servo:
-            self.currentDevice = startDevice
-            startBaudRate = bautRateServo
-            self.Switch(Component.Servo)
-        self.SerialPort = Serial(
-            "/dev/serial0", baudrate=startBaudRate, timeout=0.001)
+    SerialPort = Serial(
+        "/dev/serial0", baudrate=BautRateDisplay, timeout=0.001)
 
-    def Switch(self, device):
-        if (self.currentDevice != device):
+    @staticmethod
+    def Switch(device):
+        if (SerialDriver.currentDevice != device):
             if device == Component.Display:
-                GPIO.output(self.Pin, GPIO.HIGH)
-            elif device == Component.Display:
-                GPIO.output(self.Pin, GPIO.LOW)
-            self.currentDevice = device
-            sleep(self.SwitchDelay)
+                SerialDriver.SerialPort.bautrate = SerialDriver.BautRateDisplay
+                GPIO.output(SerialDriver.Pin, GPIO.HIGH)
+            elif device == Component.Servo:
+                SerialDriver.SerialPort.bautrate = SerialDriver.BautRateServo
+                GPIO.output(SerialDriver.Pin, GPIO.LOW)
+            SerialDriver.currentDevice = device
+            sleep(SerialDriver.SwitchDelay)
 
-    def flushInput(self, device):
-        if (self.currentDevice != device):
-            self.Switch(device)
-        self.SerialPort.flushInput()
+    @staticmethod
+    def flushInput(device):
+        SerialDriver.Switch(device)
+        SerialDriver.SerialPort.flushInput()
 
-    def write(self, data, device):
-        if (self.currentDevice != device):
-            self.Switch(device)
-        self.SerialPort.write(data)
+    @staticmethod
+    def write(data, device):
+        SerialDriver.Switch(device)
+        SerialDriver.SerialPort.write(data)
 
-    def read(self, device):
-        if (self.currentDevice != device):
-            self.Switch(device)
-        return self.SerialPort.read()
+    @staticmethod
+    def read(bytesToRead, device):
+        SerialDriver.Switch(device)
+        return SerialDriver.SerialPort.read(bytesToRead)
