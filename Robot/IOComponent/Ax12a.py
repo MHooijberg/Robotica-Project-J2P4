@@ -11,6 +11,7 @@ http://savageelectronics.blogspot.it/2011/01/arduino-y-dynamixel-ax-12.html
 from time import sleep
 from serial import Serial
 import RPi.GPIO as GPIO
+from Types.Component import Component
 
 
 class Ax12:
@@ -133,12 +134,13 @@ class Ax12:
     DIRECTION_TX = None
     DIRECTION_RX = None
     DIRECTION_SWITCH_DELAY = None
+    AX_DEVICE = Component.Servo
 
     # static variables
     port = None
     gpioSet = False
 
-    def __init__(self, directionPin, directionTX, directionRX, directionSwitchDelay, baud_rate=1000000):
+    def __init__(self, directionPin, directionTX, directionRX, directionSwitchDelay, port, baud_rate=1000000):
         Ax12.DIRECTION_PIN = directionPin
         Ax12.DIRECTION_TX = directionTX
         Ax12.DIRECTION_RX = directionRX
@@ -146,8 +148,7 @@ class Ax12:
 
         print("__init__ was called of ax12_v3_modified.py")
         if(Ax12.port == None):
-            Ax12.port = Serial(
-                "/dev/serial0", baudrate=baud_rate, timeout=0.001)
+            Ax12.port = port
         if(not Ax12.gpioSet):
             # GPIO.setwarnings(False)
             GPIO.setmode(GPIO.BCM)
@@ -181,7 +182,8 @@ class Ax12:
 
     def readData(self, id):
         self.direction(Ax12.DIRECTION_RX)
-        reply = Ax12.port.read(5)  # [0xff, 0xff, origin, length, error]
+        # [0xff, 0xff, origin, length, error]
+        reply = Ax12.port.read(5, Ax12.AX_DEVICE)
 
         try:
             assert len(reply) == 5 and reply[0] == 0xFF

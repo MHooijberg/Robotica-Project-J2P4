@@ -84,7 +84,7 @@ class Controller:
     M2B_PIN = 13
     MAGNET_PIN = 22
     SHUTDOWN_SWITCH_PIN = 17
-    DISPLAY_SERVO_SWITCH_PIN = 24
+    DISPLAY_SERVO_SWITCH_PIN = 24  # HIGH = DISPLAY, LOW = SERVO
 
     # =====================================
     # ---- Remote  configuration ----
