@@ -1,4 +1,4 @@
-from IOComponent.Hx711 import Hx711
+from IOComponent.hx711 import hx711
 
 import time
 import sys
@@ -35,9 +35,9 @@ import RPi.GPIO as GPIO
 class WeightSensorDriver:
 
     def __init__(self, pinA, pinB):
-        referenceUnit = 1
+        self.referenceUnit = 1035.5
         # recommended: "pinA" = 5 and "pinB" = 6
-        hx = Hx711(pinA, pinB)
+        self.hx = hx711(pinA, pinB)
 
     def calibrate(self):
         # I've found out that, for some reason, the order of the bytes is not always the same between versions of python, numpy and the hx711 itself.

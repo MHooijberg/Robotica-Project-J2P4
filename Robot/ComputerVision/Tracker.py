@@ -18,8 +18,8 @@ class Tracker:
             lower_color_filter = np.array([0, 0, 0])
             upper_color_filter = np.array([179, 101, 100])
 
-        lower_color_filter = np.array([78, 244, 89])
-        upper_color_filter = np.array([109, 255, 158])
+        lower_color_filter = np.array([50, 100, 0])
+        upper_color_filter = np.array([166, 255, 255])
 
         # Convert BGR to HSV
         hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)

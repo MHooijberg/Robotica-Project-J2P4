@@ -110,14 +110,14 @@ class Controller:
     DIRECTION_SWITCH_DELAY = 0.0001
     DIRECTION_TX = GPIO.HIGH
     FOLD_POSITION = [517, [60], 60]
-    MAX_POSITION_PER_ROTATION_REQUEST = 4  # 1.16°
+    MAX_POSITION_PER_ROTATION_REQUEST = 40  # 1.16°
     WEIGH_POSITION = [517, [672], 51]
     ZERO_POSITION = 150
 
     # =====================================
     # ---- Driving configuration ----
     # =====================================
-    STEERING_MODE = SteeringMode.Dynamic
+    STEERING_MODE = SteeringMode.Static
 
     # =====================================
     # ----------- States ------------
@@ -160,7 +160,7 @@ class Controller:
 
                         # Handle the manual control menu.
                         elif command_array[4] == "Menu":
-                            if command_array[5] == "ON":
+                            if command_array[5] == "Talking":
                                 Controller.Pitch()
                                 # Handle the manual control menu.
                         elif command_array[4] == "Manually":
@@ -196,15 +196,16 @@ class Controller:
                                     ArmPart.Arm, armRotation, False)
                                 Controller.Arm.Rotate(
                                     ArmPart.Head, headRotation, False)
-
+                            if command_array[7] == "ON":
+                                weight = Controller.WeightSensor.getWeight()
                             # Turn on and off the magnet.
                             if command_array[7] == "ON" and Controller.MAGNET_IS_ACTIVE is False:
                                 Controller.MAGNET_IS_ACTIVE = True
-                                Controller.Magnet.turnON()
-                                weight = Controller.WeightSensor.getWeight()
+                                Controller.Magnet.Activate(True)
+                                #weight = Controller.WeightSensor.getWeight()
                             elif command_array[7] == "OFF" and Controller.MAGNET_IS_ACTIVE is True:
                                 Controller.MAGNET_IS_ACTIVE = False
-                                Controller.Magnet.turnOff()
+                                Controller.Magnet.Activate(False)
                                 Controller.WeightSensor.calibrate()
 
                         # Handle the autonomous control menu.
@@ -251,10 +252,10 @@ class Controller:
 
     @staticmethod
     def Pitch():
+        playsound("jenny-pitch.mp3", True)
         Controller.MotorDriver.Drive((20, 20), SteeringMode.Static)
         time.sleep(3)
         Controller.MotorDriver.Brake()
-        playsound("jenny-pitch.mp3", False)
         time.sleep(2)
         Controller.MotorDriver.Drive((30, 0), SteeringMode.Static)
         time.sleep(2)
