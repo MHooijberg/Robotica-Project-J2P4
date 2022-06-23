@@ -130,10 +130,10 @@ class Controller:
     # ------ Object  Instances ------
     # =====================================
     ObjectTracker = Tracker()
-    Arm = ArmDriver(ARM_STRUCTURE, CONVERSION_NUMBER,
-                    DEFAULT_STABILISATION_AMOUNT, ZERO_POSITION,
-                    FOLD_POSITION, WEIGH_POSITION, AX12_DIRECTION_PIN,
-                    DIRECTION_TX, DIRECTION_RX, DIRECTION_SWITCH_DELAY)
+#     Arm = ArmDriver(ARM_STRUCTURE, CONVERSION_NUMBER,
+#                     DEFAULT_STABILISATION_AMOUNT, ZERO_POSITION,
+#                     FOLD_POSITION, WEIGH_POSITION, AX12_DIRECTION_PIN,
+#                     DIRECTION_TX, DIRECTION_RX, DIRECTION_SWITCH_DELAY)
     Camera = Camera()
     Remote = Remote(ADDRESS, UUID, CENTER_X_LEFT, CENTER_Y_LEFT,
                     CENTER_X_RIGHT, CENTER_Y_RIGHT, RANGE, INNER_DEADZONE, OUTER_DEADZONE)
@@ -173,29 +173,30 @@ class Controller:
                                     joystickA, Controller.STEERING_MODE)
                             # Control Arm
                             elif command_array[6] == "ON":
-                                joystickA = Controller.Remote.JoystickToPercentage(
-                                    command_array[0], command_array[1], True)
-                                joystickB = Controller.Remote.JoystickToPercentage(
-                                    command_array[2], command_array[3], False)
-
-                                # Man, I'm going to bed, everything is setup.
-                                # implement MAX_POSITION_PER_ROTATION_REQUEST
-                                # multiplied by the percentage of the axis.
-                                # JoystickA X = Base, Y = Arm
-                                # JoystickB Y = Head
-                                rotationFactor = Controller.MAX_POSITION_PER_ROTATION_REQUEST / 100
-                                baseRotation = int(
-                                    rotationFactor * joystickA[0])
-                                armRotation = int(
-                                    rotationFactor * joystickA[1])
-                                headRotation = int(
-                                    rotationFactor * joystickB[1])
-                                Controller.Arm.Rotate(
-                                    ArmPart.Base, baseRotation, False)
-                                Controller.Arm.Rotate(
-                                    ArmPart.Arm, armRotation, False)
-                                Controller.Arm.Rotate(
-                                    ArmPart.Head, headRotation, False)
+                                pass
+#                                 joystickA = Controller.Remote.JoystickToPercentage(
+#                                     command_array[0], command_array[1], True)
+#                                 joystickB = Controller.Remote.JoystickToPercentage(
+#                                     command_array[2], command_array[3], False)
+# 
+#                                 # Man, I'm going to bed, everything is setup.
+#                                 # implement MAX_POSITION_PER_ROTATION_REQUEST
+#                                 # multiplied by the percentage of the axis.
+#                                 # JoystickA X = Base, Y = Arm
+#                                 # JoystickB Y = Head
+#                                 rotationFactor = Controller.MAX_POSITION_PER_ROTATION_REQUEST / 100
+#                                 baseRotation = int(
+#                                     rotationFactor * joystickA[0])
+#                                 armRotation = int(
+#                                     rotationFactor * joystickA[1])
+#                                 headRotation = int(
+#                                     rotationFactor * joystickB[1])
+#                                 Controller.Arm.Rotate(
+#                                     ArmPart.Base, baseRotation, False)
+#                                 Controller.Arm.Rotate(
+#                                     ArmPart.Arm, armRotation, False)
+#                                 Controller.Arm.Rotate(
+#                                     ArmPart.Head, headRotation, False)
                             if command_array[7] == "ON":
                                 weight = Controller.WeightSensor.getWeight()
                             # Turn on and off the magnet.
@@ -234,7 +235,7 @@ class Controller:
                         # Handle the dance menu.
                         elif command_array[4] == "Dance":
                             if command_array[5] == "ON":
-                                pass
+                                Controller.Dance()
                             elif command_array[6] == "ON":
                                 pass
             # If it doesn't connect or the connection is dropped, then print error and try again.
@@ -278,3 +279,103 @@ class Controller:
         Controller.MotorDriver.Drive((-30, 0), SteeringMode.Static)
         time.sleep(2)
         Controller.MotorDriver.Brake()
+        
+        @staticmethod
+        def Dance():
+            try:
+                Screen.DisplayEmotion(Angry)
+                #lights.colorWipe(strip, Color(217, 56, 209), 10)
+
+                Controller.MotorDriver.Drive((0, 5), SteeringMode.Static)
+            
+                time.sleep(1.2)
+
+                Controller.MotorDriver.Drive((0, 5), SteeringMode.Static)
+                #lights.colorWipe(strip, Color(0, 0, 0), 10)
+
+                time.sleep(2.05)
+                Controller.MotorDriver.Drive((30, 0), SteeringMode.Static)
+
+      
+                time.sleep(3.85)
+                Controller.MotorDriver.Brake()
+                Controller.MotorDriver.Move((0, 30))
+                time.sleep(3.13)
+                Controller.MotorDriver.Brake()
+                Controller.MotorDriver.Move((20, 0))
+                time.sleep(3.77)
+                Controller.MotorDriver.Brake()
+                Controller.MotorDriver.Drive((-30, 0), SteeringMode.Static)
+                time.sleep(1)
+                Controller.MotorDriver.Drive((30, 0), SteeringMode.Static)
+
+                time.sleep(1)
+                Controller.MotorDriver.Drive((-30, 0), SteeringMode.Static)
+
+                time.sleep(1)
+                Controller.MotorDriver.Drive((30, 0), SteeringMode.Static)
+
+                time.sleep(1.1)
+                Controller.MotorDriver.Drive((-30, 0), SteeringMode.Static)
+
+                time.sleep(0.97)
+                Controller.MotorDriver.Drive((30, 0), SteeringMode.Static)
+
+                time.sleep(1.03)
+                Controller.MotorDriver.Drive((0, -10), SteeringMode.Static)
+
+                time.sleep(1.1)
+                Controller.MotorDriver.Drive((0, 10), SteeringMode.Static)
+
+                time.sleep(0.95)
+                Controller.MotorDriver.Drive((30, 0), SteeringMode.Static)
+
+                #harstyle definitief
+                time.sleep(3.1)
+                Controller.MotorDriver.Drive((0, 20), SteeringMode.Static)
+                Screen.DisplayEmotion(Sad)
+
+                time.sleep(3.1)
+                Controller.MotorDriver.Drive((0, -20), SteeringMode.Static)
+
+                time.sleep(3)
+                Controller.MotorDriver.Drive((0, 20), SteeringMode.Static)
+
+                time.sleep(3.3)
+                Controller.MotorDriver.Drive((0, -20), SteeringMode.Static)
+
+
+                #hardstyle moment definitief
+                #lights.rainbow(strip)
+                time.sleep(3.1)
+                Controller.MotorDriver.Drive((30, 0), SteeringMode.Static)
+                Screen.DisplayEmotion(Tired)
+                time.sleep(3.7)
+                Controller.MotorDriver.Drive((-30, 0), SteeringMode.Static)
+
+                time.sleep(6.8)
+                Controller.MotorDriver.Drive((30, 0), SteeringMode.Static)
+
+                time.sleep(2.5)
+                Controller.MotorDriver.Drive((-30, 0), SteeringMode.Static)
+
+                time.sleep(3.7)
+                Controller.MotorDriver.Drive((30, 0), SteeringMode.Static)
+            
+                time.sleep(2.1)
+                Controller.MotorDriver.Drive((5, 0), SteeringMode.Static)
+
+                time.sleep(1)
+            
+                #jenny song
+                #lights.colorWipe(strip, Color(56, 217, 209), 10)
+                Controller.MotorDriver.Brake()
+                Controller.MotorDriver.Move((0, 30))
+                Screen.DisplayEmotion(Happy)
+                time.sleep(29.95)
+            except KeyboardInterrupt:
+                Controller.MotorDriver.Brake()
+                #lights.colorWipe(strip, Color(0, 0, 0), 10)
+            else:
+                print('wtf')
+
