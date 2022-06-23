@@ -133,7 +133,9 @@ class Searcher:
                 EdgeArray.append((j,0))             
                                                     
         # 'target' will be only the thick, red lines
-        target = Searcher.findRedStuff(black) 
+        target = Searcher.findRedStuff(black)
+        # saves the radar frame as .jpg
+        cv2.imwrite('Radar.jpg',black)
         # display both the camera and the radar
         if self.DisplayImage is True:
             cv2.imshow("camera", img)
