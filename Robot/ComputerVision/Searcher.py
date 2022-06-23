@@ -24,6 +24,8 @@ import math
 #
 # --How to use--
 #
+# -Finding shavings-
+#
 # 1. call the 'findTarget' function, which will almost immeadially call the 'createRadar' function
 # 2. the purpose for the 'createRadar' method is to first create a radar, which it uses to check diferences in height on a terrain
 #    when the difference is under the average of the radar, this class will classify it as an object
@@ -33,8 +35,19 @@ import math
 #    if there are found items, it will search for the biggest target and draw that target on an emty black image (otherwise 'No items found' will be returned)
 #    finally, it will determine if the target is at left, or the right of the middle of the screen (but not before checking if the target is in front of the screen)
 #
+# - Finding the tray-
 #
+# 1. call the 'findTray' function. This requires two arguments one is the cameraframe and the other is a string containing one of
+#    the following exact words: 'Red', 'Blue', 'Green'. This determines which colour the tray is what needs to be searched
+# 2. depending on the 'colour' argument, this function will now create a mask, in order to find the tray object that has either
+#    the colour red, blue or green
+# 3. it will then, filter out all objects with an area that is too small. By doing this the robot will not chase reflected light,
+#    or something alike
+# 4. like finding shavings, the method will now determine the whereabouts of the tray. Keep in mind that no other object with the same
+#    colour as the tary should be present
 # to have created the radar function, code from the Big face Robotics has been moddified: https://github.com/BigFace83/BFRMR1
+#
+#________________________________________________________________________________________________________________________________________________________________________________________
 class Searcher:
 
     # a lot of variables will be defined within the '__init__' class
